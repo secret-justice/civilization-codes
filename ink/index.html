@@ -1372,6 +1372,18 @@ kbd {
   .sec.alt { background: #fff; }
 }
 
+/* 页面内算法自检 */
+.selfcheck { margin-top: var(--s-6, 40px); padding: 20px 22px; border: 1px solid var(--line, #d8d2c4); border-radius: 8px; }
+.selfcheck h3 { margin: 0 0 8px; }
+.selfcheck-row { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin-top: 12px; }
+.selfcheck-list { list-style: none; margin: 12px 0 0; padding: 0; columns: 2; column-gap: 28px; }
+.selfcheck-list li { break-inside: avoid; font-size: var(--fs-xs, 12.5px); line-height: 1.9; font-family: var(--f-mono, monospace); }
+.selfcheck-list li b { font-family: var(--f-sans, sans-serif); letter-spacing: .06em; }
+.selfcheck-list li.pass b { color: #2f7a4f; }
+.selfcheck-list li.fail b { color: #a83a2b; }
+.selfcheck-list li .v { color: var(--text-3, #7a756c); margin-left: 6px; }
+@media (max-width: 720px) { .selfcheck-list { columns: 1; } }
+
 </style>
 </head>
 <body data-lang="zh">
@@ -1762,6 +1774,19 @@ kbd {
       <p class="hint"><span class="zh">声音与匹配结果均为可复算输出：同一笔迹在同一音色下逐字段相同，同一特征向量得到同一排序。</span>
         <span class="en">Both sound and matching are reproducible: the same stroke in the same timbre is identical field by field, and the same feature vector gives the same ranking.</span></p>
     </div>
+  </div>
+
+  <div class="selfcheck" id="selfCheck">
+    <h3><span class="zh">算法自检（就在这一页里跑）</span><span class="en">Algorithm self-check (runs right here)</span></h3>
+    <p class="hint"><span class="zh">下面这组断言用的是与 <code>test/verify.js</code> <b>同一批纯函数、同一组解析预期</b>：
+      给定一条匀速直线笔迹，算法应当解出速度方差≈0、转折角≈0、节奏熵≈0、中段稳定性≈1、起笔角≈0°、提按比≈1；
+      同一输入必须给出同一条声音与同一份排序。点一下即可现场复算，结果不会因为"换个评委"而变化。</span>
+      <span class="en">These assertions use the <b>same pure functions and analytic expectations</b> as <code>test/verify.js</code>: for a constant-speed straight stroke the analysis must yield speed variance ≈ 0, turn angle ≈ 0, rhythm entropy ≈ 0, mid-stroke stability ≈ 1, start angle ≈ 0°, press ratio ≈ 1; and the same input must always produce the same sound and the same ranking. Click to re-run it yourself.</span></p>
+    <div class="selfcheck-row">
+      <button class="btn-primary small" id="selfCheckRun" type="button"><span class="zh">运行自检（16 条）</span><span class="en">Run the check (16)</span></button>
+      <p class="live" id="selfCheckStat" role="status" aria-live="polite"></p>
+    </div>
+    <ul class="selfcheck-list" id="selfCheckList"></ul>
   </div>
 </section>
 

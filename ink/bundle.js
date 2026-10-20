@@ -3797,6 +3797,7 @@
     b = $('#langBtn'); if (b) b.addEventListener('click', function () { setLang(ST.lang === 'zh' ? 'en' : 'zh'); });
     b = $('#motionBtn'); if (b) b.addEventListener('click', function () { setReduceMotion(!ST.reduceMotion); });
     b = $('#undoBtn'); if (b) b.addEventListener('click', undo);
+  b = $('#selfCheckRun'); if (b) b.addEventListener('click', runSelfCheck);
     b = $('#clearBtn'); if (b) b.addEventListener('click', clearPad);
     b = $('#gridToggle'); if (b) b.addEventListener('click', function () {
       ST.showGrid = !ST.showGrid;
@@ -4293,6 +4294,99 @@
     }
     if (!uniq.length) uniq.push(Math.min(s.top, maxS));
     return { count: uniq.length, offs: uniq };
+  }
+
+  /* ============================================================
+     页面内算法自检（与 test/verify.js 同一批纯函数、同一组解析预期）
+     ============================================================ */
+  function selfCheckAssertions() {
+    var out = [];
+    var ok = function (cond, name, detail) {
+      out.push({ ok: !!cond, name: name, detail: detail || '' });
+    };
+    var near = function (a, b, tol) { return Math.abs(a - b) <= tol; };
+    var mkLine = function (n, dur) {
+      var pts = [], i, u;
+      for (i = 0; i < n; i++) {
+        u = i / (n - 1);
+        pts.push({ x: 100 + 800 * u, y: 300, t: dur * u, p: 0.5 });
+      }
+      return pts;
+    };
+
+    /* 1 · 采样一致性 */
+    var S = resampleStroke(mkLine(120, 1200));
+    ok(S.length > 10, '重采样后样本数 > 10', 'samples=' + S.length);
+    ok(near(S[1].t - S[0].t, CFG.dt, 0.001), '等时步长 = ' + CFG.dt + ' ms',
+      'dt=' + (S[1].t - S[0].t).toFixed(4));
+    var mono = true, maxDev = 0, i;
+    for (i = 1; i < S.length; i++) {
+      if (S[i].t <= S[i - 1].t) mono = false;
+      maxDev = Math.max(maxDev, Math.abs((S[i].t - S[i - 1].t) - CFG.dt));
+    }
+    ok(mono, '时间严格递增');
+    ok(maxDev < 1e-6, '样本间隔偏差 < 1e-6', 'maxDev=' + maxDev.toExponential(2));
+    ok(S.every(function (s) { return isFinite(s.v) && isFinite(s.a) && isFinite(s.kappa); }),
+      '每个样本都有 v / a / κ 数值');
+
+    /* 2 · 匀速直线的解析预期 */
+    var f = extractFeatures(S);
+    ok(f.speedVar < 1e-4, '速度方差 ≈ 0', 'speedVar=' + f.speedVar.toExponential(2));
+    ok(near(f.turnAngle, 0, 0.5), '转折角 ≈ 0°', 'turnAngle=' + (f.turnAngle || 0).toFixed(3));
+    ok(f.rhythmEntropy < 0.02, '节奏熵 ≈ 0', 'entropy=' + f.rhythmEntropy.toFixed(4));
+    ok(f.midStability > 0.999, '中段稳定性 ≈ 1', 'midStability=' + f.midStability.toFixed(5));
+    ok(near(f.startAngle, 0, 0.6), '起笔角 ≈ 0°（向右）', 'startAngle=' + f.startAngle.toFixed(3));
+    ok(near(f.pressRatio, 1, 0.02), '提按比 ≈ 1', 'pressRatio=' + f.pressRatio.toFixed(4));
+    ok(f.entryShape < 0.02, '入锋形态 ≈ 0（露锋）', 'entryShape=' + f.entryShape.toFixed(4));
+
+    /* 3 · 特征向量结构 */
+    var keys = FEATURE_KEYS.filter(function (k) { return Object.prototype.hasOwnProperty.call(f, k); });
+    ok(keys.length === FEATURE_KEYS.length, '十维特征键齐全',
+      keys.length + '/' + FEATURE_KEYS.length);
+
+    /* 4 · 确定性：同一输入 → 同一排序、同一条声音 */
+    ok(JSON.stringify(matchStyle(f)) === JSON.stringify(matchStyle(f)),
+      'matchStyle 确定性（同输入两次一致）');
+    ok(JSON.stringify(sonify(f, TIMBRES[0])) === JSON.stringify(sonify(f, TIMBRES[0])),
+      'sonify 确定性（同音色逐字段一致）');
+
+    /* 5 · 轴向折叠 */
+    ok(near(axisFold(0), axisFold(180), 1e-9), '轴向折叠：0° 与 180° 等价');
+    return out;
+  }
+
+  function runSelfCheck() {
+    var st = $('#selfCheckStat'), list = $('#selfCheckList');
+    if (!st || !list) return;
+    st.textContent = t('正在复算…', 'running…');
+    var res;
+    try {
+      res = selfCheckAssertions();
+    } catch (err) {
+      st.textContent = t('自检执行异常：', 'self-check error: ') + (err && err.message ? err.message : err);
+      return;
+    }
+    var pass = 0, fails = [], frag = document.createDocumentFragment();
+    res.forEach(function (r) {
+      if (r.ok) { pass++; } else { fails.push(r.name); }
+      var li = document.createElement('li');
+      li.className = r.ok ? 'pass' : 'fail';
+      var bEl = document.createElement('b');
+      bEl.textContent = r.ok ? 'PASS' : 'FAIL';
+      li.appendChild(bEl);
+      li.appendChild(document.createTextNode(' ' + r.name));
+      if (r.detail) {
+        var sp = document.createElement('span');
+        sp.className = 'v';
+        sp.textContent = r.detail;
+        li.appendChild(sp);
+      }
+      frag.appendChild(li);
+    });
+    list.textContent = '';
+    list.appendChild(frag);
+    st.textContent = pass + ' / ' + res.length + ' ' + t('条通过',
+      'passed') + (fails.length ? t('；未通过：', '; failed: ') + fails.join('、') : t('；全部通过', '; all passed'));
   }
 
   function pmInstant() {
