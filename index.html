@@ -25,6 +25,7 @@ a.card:hover{border-color:#3b3f45;transform:translateY(-3px)}
 .card p{color:#b9b5ad;font-size:13.5px;line-height:1.85;margin:0}
 .card ul{margin:14px 0 0;padding-left:18px;color:#9d9a93;font-size:12.8px;line-height:1.9}
 .card .go{margin-top:18px;font-size:13px;color:var(--gold);letter-spacing:.04em}
+.card .chk{margin-top:12px;display:inline-block;font-size:11.5px;letter-spacing:.06em;color:var(--gold);border:1px solid #3a3327;border-radius:999px;padding:4px 11px;background:#191510}
 footer{margin-top:56px;padding-top:24px;border-top:1px solid var(--line);color:#a5a29b;font-size:12.5px;line-height:2}
 footer a{color:#c0bcb4}
 @media(max-width:560px){.wrap{padding:40px 18px 64px}}
@@ -37,7 +38,8 @@ footer a{color:#c0bcb4}
     <h1>把中国技术文明里的「编码」<br>做成可操作、可复算、可听辨的交互作品</h1>
     <p class="sub">
       三件作品同一个方法论：不停留在题材的「样子」，而是把支撑它的<b>程序、笔法与历法</b>还原成可运行的结构——
-      代码全部离线可跑，零第三方库；关键结论均由作品内自带的断言脚本当场复算。
+      代码全部离线可跑，零第三方库；关键结论均由作品内自带的断言脚本当场复算——
+      而且<b>现在可以在页面里点一下按钮，由你的浏览器当场复跑</b>（见每件作品的「自检」面板）。
     </p>
   </header>
 
@@ -49,6 +51,7 @@ footer a{color:#c0bcb4}
       <div class="en">Loom &amp; Chip — From Pattern-Loom to Binary</div>
       <p>南京云锦「挑花结本」把纹样编成可卷取、可复制的花本——这是一千年前的「程序」。作品用「五态同构」把同一份编码在花本线、穿孔卡片、打孔纸带、二进制、像素矩阵五种介质上并排联动。</p>
       <ul><li>挑花结本编译 · 组织循环织造模拟 · 五态互转</li><li>155 条算法断言 + 111 条界面端到端断言</li></ul>
+      <div class="chk">页面内自检 · 18 条算法断言可当场复跑</div>
       <div class="go">进入作品 →</div>
     </a>
 
@@ -58,6 +61,7 @@ footer a{color:#c0bcb4}
       <div class="en">Traces of Ink — Recovering the Time Inside a Brushstroke</div>
       <p>碑帖、字帖看到的都是静止结果，而书论反复讨论的是运动本身。作品把一笔拆成十维笔法特征（速度、提按、转折、驻笔……），并做跨模态转译：速度→音高、提按→力度、转折→音色。</p>
       <ul><li>十维笔法实时解析 · 五种书体加权余弦匹配</li><li>不认识汉字也能听出书体性格（Web Audio 实时合成）</li></ul>
+      <div class="chk">页面内自检 · 16 条笔法解析断言可当场复跑</div>
       <div class="go">进入作品 →</div>
     </a>
 
@@ -67,6 +71,7 @@ footer a{color:#c0bcb4}
       <div class="en">The Measure of Heaven — 24 Solar Terms as a Computable Calendar</div>
       <p>二十四节气不是民俗符号，而是以太阳视黄经每 15° 为节点的太阳历法。作品按 VSOP87D 截断级数当场反解每个节气时刻，并与香港天文台 2024–2027 年 96 条官方时刻逐条比对。</p>
       <ul><li>平均绝对误差 0.259 分钟 · 最大 0.650 分钟（96 条全 ≤1 分钟）</li><li>一个日期游标联动五种文明的太阳节点</li></ul>
+      <div class="chk">页面内自检 · 96 条官方时刻可当场复核</div>
       <div class="go">进入作品 →</div>
     </a>
   </div>
