@@ -115,7 +115,7 @@
 
       <div class="ws-stage">
         <div class="grid-wrap">
-          <div id="wsGrid" class="grid" role="grid" aria-label="纹样绘制网格" aria-describedby="wsHint"></div>
+          <div id="wsGrid" class="grid" role="group" aria-label="纹样绘制网格" aria-describedby="wsHint"></div>
           <p class="hint" id="wsHint" data-i18n="ws_hint">方向键移动光标，空格或回车落色；也可直接点击或按住拖拽。</p>
         </div>
       </div>
@@ -152,7 +152,7 @@
         <span class="badge" id="drSize">16 × 16</span>
       </div>
       <div class="svg-wrap">
-        <svg id="huabenSvg" viewBox="0 0 360 360" role="img" aria-labelledby="huabenTitle huabenDesc">
+        <svg id="huabenSvg" viewBox="0 0 360 360" role="img" aria-label="花本线编结结构图：竖线为经线（脚子线），横向结扣表示该纬该经提起">
           <title id="huabenTitle">花本线编结结构图</title>
           <desc id="huabenDesc">竖线代表经线（脚子线），横向结扣代表该纬该经提起，未打结者为沉。</desc>
         </svg>
@@ -170,7 +170,7 @@
             <button type="button" class="btn btn-sm" id="drNext" aria-label="下一纬">→</button>
           </div>
         </div>
-        <ul class="code-list" id="drCode"></ul>
+        <ul class="code-list" id="drCode" tabindex="0" aria-label="挑花结本编译出的提沉序列"></ul>
         <p class="hint mono" id="drCurrent" aria-live="polite"></p>
       </div>
       <details class="readout" open>

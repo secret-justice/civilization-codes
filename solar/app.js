@@ -904,7 +904,7 @@
       <div class="detail-en">${esc(LANG === 'zh' ? x.nameEn : x.name)} · ${esc(ph.pinyin || '')}</div>
       <div class="detail-time">${esc(x.beijingStr)} <small class="unit">UTC+8</small></div>
       <div class="detail-time" style="font-size:12.5px;color:var(--text-3)">${esc(x.utcStr)} <small class="unit">UTC</small></div>
-      <dl>
+      <div class="kv-list">
         <div class="kv"><span>${esc(t('termLongitude'))}</span><b>${x.longitude.toFixed(0)}°</b></div>
         <div class="kv"><span>${esc(t('directLat'))}</span><b>${fmtDeg(dec)}</b></div>
         <div class="kv"><span>${esc(t('sunDist'))}</span><b>${sunInfo.distanceAU.toFixed(6)} AU</b></div>
@@ -914,7 +914,7 @@
           const prev = list.find((y) => y.seq === x.seq - 1);
           return prev ? (x.jdUT - prev.jdUT).toFixed(2) + ' ' + t('day') : '—';
         })()}</b></div>
-      </dl>
+      </div>
       <div class="pentads">
         <p class="sec-kicker" style="font-size:10.5px">${esc(t('pentadsTitle'))}</p>
         ${ph.pentads.map((p, i) => `<div class="pentad"><i>${['初候', '二候', '三候'][i]}</i>

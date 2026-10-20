@@ -2240,7 +2240,7 @@
     if (!r) return;
     if (sk) {
       sk.innerHTML = '';
-      sk.appendChild(el('h4', null, r.stroke.zh + ' · ' + r.stroke.en));
+      sk.appendChild(el('h3', null, r.stroke.zh + ' · ' + r.stroke.en));
       var gz = el('p', null, t(r.stroke.gloss_zh, r.stroke.gloss_en));
       sk.appendChild(gz);
       var kz = el('p', 'muted', t('要点：' + r.stroke.key_zh, 'Key: ' + r.stroke.key_en));

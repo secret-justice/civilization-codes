@@ -537,7 +537,7 @@ select.input { cursor: pointer; }
 .swatch-chip { height: 66px; position: relative; }
 .swatch-chip span {
   position: absolute; left: 7px; bottom: 6px; font-family: var(--f-mono); font-size: 10.5px;
-  color: #ece6da; background: rgba(7, 14, 20, .52); padding: 1px 5px; border-radius: 2px;
+  color: #f6f1e6; background: rgba(7, 14, 20, .86); padding: 1px 6px; border-radius: 2px;
   letter-spacing: .02em;
 }
 .swatch-body { padding: 9px 10px 11px; }

@@ -795,8 +795,6 @@ function buildGrid() {
   const n = S.size;
   grid.innerHTML = '';
   grid.style.gridTemplateColumns = 'repeat(' + n + ', minmax(0, 1fr))';
-  grid.setAttribute('aria-rowcount', String(n));
-  grid.setAttribute('aria-colcount', String(n));
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
       const b = el('button', 'cell');
@@ -804,7 +802,6 @@ function buildGrid() {
       b.dataset.i = String(i);
       b.dataset.j = String(j);
       b.tabIndex = (i === 0 && j === 0) ? 0 : -1;
-      b.setAttribute('role', 'gridcell');
       const c = S.design.cells[i][j];
       b.dataset.color = c || '';
       b.setAttribute('aria-label', cellLabel(i, j, c));
@@ -1532,8 +1529,8 @@ function renderFiveFlower(bits) {
   const svg = document.createElementNS(NS, 'svg');
   svg.setAttribute('viewBox', '0 0 ' + side + ' ' + side);
   svg.setAttribute('class', 'fv-flower-svg');
-  svg.setAttribute('role', 'img');
-  svg.setAttribute('aria-label', LANG_KEY === 'zh' ? '花本线编结结构：结扣为提，无结为沉' : 'Knotted pattern cords: a knot is a raised end');
+  svg.setAttribute('aria-hidden', 'true');
+  svg.setAttribute('focusable', 'false');
   for (let j = 0; j < n; j++) {
     const l = document.createElementNS(NS, 'line');
     const x = pad + (j + 0.5) * step;
@@ -1632,6 +1629,7 @@ function renderFiveTape(bits) {
         if (c) {
           d.classList.add('bit');
           d.dataset.bit = c.i + '-' + c.j;
+          d.setAttribute('role', 'img');
           d.setAttribute('aria-label', bitLabel(c.i, c.j, c.bit));
         } else {
           d.setAttribute('aria-hidden', 'true');
@@ -1713,7 +1711,7 @@ function highlightBit(key, silent) {
   for (let k = 0; k < nodes.length; k++) {
     const n = nodes[k];
     n.classList.toggle('on', n.dataset.bit === key);
-    n.setAttribute('aria-pressed', n.dataset.bit === key ? 'true' : 'false');
+    n.setAttribute('aria-current', n.dataset.bit === key ? 'true' : 'false');
   }
   const bit = S.pattern.lift[i][j];
   const ci = S.pattern.color[i][j];
