@@ -1,3 +1,880 @@
+/* ==== data_terms.js ==== */
+/* ============================================================================
+   墨迹 · Traces of Ink —— 中英双语书法术语库 data_terms.js
+   ----------------------------------------------------------------------------
+   规模：153 条唯一词条，9 个门类。团队依照历代书论（《笔阵图》《书谱》
+        《永字八法》《艺舟双楫》《广艺舟双楫》等）与公开工具书自行撰写释义，
+        英文术语为团队定译，不取自任何商业词典或数据库。
+   字段：id 稳定标识 | zh 中文 | en 英文定译 | py 拼音 | cat 门类
+        def_zh / def_en 释义 | src 书论出处（可空）
+   ========================================================================== */
+(function (root) {
+  'use strict';
+
+  const CATS = [
+    { key: 'bifa',   zh: '笔法',     en: 'Brush method' },
+    { key: 'yong',   zh: '永字八法', en: 'Eight principles' },
+    { key: 'mofa',   zh: '墨法',     en: 'Ink method' },
+    { key: 'jieti',  zh: '结体',     en: 'Structure' },
+    { key: 'zhangfa',zh: '章法',     en: 'Composition' },
+    { key: 'shuti',  zh: '书体',     en: 'Script types' },
+    { key: 'bishi',  zh: '笔势与气韵', en: 'Momentum & spirit' },
+    { key: 'qiju',   zh: '工具材料', en: 'Tools & materials' },
+    { key: 'pinglun',zh: '品评与著录', en: 'Criticism & records' }
+  ];
+
+  const TERMS = [
+    /* ---------------- 笔法 · Brush method ---------------- */
+    { id: 'zhongfeng', zh: '中锋', en: 'centred tip', py: 'zhōng fēng', cat: 'bifa',
+      def_zh: '行笔时笔锋（笔尖）始终居于笔画正中，墨从毫心向两侧渗开，故线质圆浑而有立体感。', def_en: 'The tip runs along the centre of the line, so ink spreads evenly to both sides; the result is a round, dimensional stroke.', src: '《笔阵图》' },
+    { id: 'cefeng', zh: '侧锋', en: 'side tip', py: 'cè fēng', cat: 'bifa',
+      def_zh: '笔锋偏于笔画一侧运行，一面光一面毛，取妍取险；行草中常用以取势。', def_en: 'The tip travels on one side of the line, giving one smooth and one ragged edge; a device for slant and liveliness, common in running and cursive script.' },
+    { id: 'cangfeng', zh: '藏锋', en: 'concealed tip', py: 'cáng fēng', cat: 'bifa',
+      def_zh: '起笔逆入、收笔回锋，使锋尖藏于笔画之内，不见尖利痕迹，取其厚重含蓄。', def_en: 'The entry is reversed and the exit returns inward so the tip stays hidden inside the stroke — weight and restraint instead of sharpness.' },
+    { id: 'lufeng', zh: '露锋', en: 'exposed tip', py: 'lù fēng', cat: 'bifa',
+      def_zh: '起笔或收笔不回藏，锋尖外露成尖角，取其爽利精神。', def_en: 'Entry or exit left unretracted, the tip showing as a point — crispness and spirit.' },
+    { id: 'nifeng', zh: '逆锋', en: 'reverse entry', py: 'nì fēng', cat: 'bifa',
+      def_zh: '起笔时笔尖先向行笔的反方向切入，即"欲右先左、欲下先上"，以便铺毫蓄势。', def_en: 'The brush first moves against the intended direction ("to go right, start left"), spreading the hairs and storing force.' },
+    { id: 'shunfeng', zh: '顺锋', en: 'following entry', py: 'shùn fēng', cat: 'bifa',
+      def_zh: '笔尖顺着行笔方向直接入纸，锋尖外露，多用于短促轻快的笔画。', def_en: 'The tip enters along the direction of travel, exposed, used for short light strokes.' },
+    { id: 'tian', zh: '提按', en: 'lifting and pressing', py: 'tí àn', cat: 'bifa',
+      def_zh: '行笔中笔毫上下起伏的动作：按则毫铺墨重、线粗，提则毫聚墨轻、线细。提按是笔法时间性的核心。', def_en: 'The vertical rise and fall of the hairs while travelling: pressing spreads the hairs (heavy, wide), lifting gathers them (light, narrow). The temporal core of brushwork.' },
+    { id: 'duncao', zh: '顿挫', en: 'pause and jolt', py: 'dùn cuò', cat: 'bifa',
+      def_zh: '顿为笔锋下压停留，挫为压后微作转折再行。顿挫使笔画有节律的顿点，是"节奏"的可测量来源。', def_en: 'Dun is a downward halt; cuo a small redirection after it. Together they create the rhythmic accents of a stroke.' },
+    { id: 'zhefeng', zh: '折锋', en: 'folded tip', py: 'zhé fēng', cat: 'bifa',
+      def_zh: '转折处以折笔换向，锋棱外露，形成方折的硬角，即"方笔"。', def_en: 'At a corner the brush folds over to change direction, exposing an edge — the hard angle of the "square" manner.' },
+    { id: 'zhuanfeng', zh: '转锋', en: 'rounded turn', py: 'zhuǎn fēng', cat: 'bifa',
+      def_zh: '转折处笔锋圆转而过，不露棱角，形成弧转，即"圆笔"。', def_en: 'At a corner the tip turns through a curve without exposing an edge — the "round" manner.' },
+    { id: 'fangbi', zh: '方笔', en: 'square manner', py: 'fāng bǐ', cat: 'bifa',
+      def_zh: '起收与转折见棱角、笔画断面近方的笔法，北碑与欧体多用，气象峻整。', def_en: 'Entries, exits and corners show edges, giving an angular section; typical of the northern steles and the Ou style.' },
+    { id: 'yuanbi', zh: '圆笔', en: 'round manner', py: 'yuán bǐ', cat: 'bifa',
+      def_zh: '起收含蓄、转折浑圆的笔法，颜、赵多用，气象温厚。', def_en: 'Reserved entries and rounded corners, typical of the Yan and Zhao styles: warmth and fullness.' },
+    { id: 'huifeng', zh: '回锋', en: 'returning tip', py: 'huí fēng', cat: 'bifa',
+      def_zh: '收笔时笔锋向反方向回收，使笔画末端圆满如"垂露"。', def_en: 'At the end of a stroke the tip turns back, rounding the terminus like a hanging dewdrop.' },
+    { id: 'chufeng', zh: '出锋', en: 'exiting tip', py: 'chū fēng', cat: 'bifa',
+      def_zh: '收笔时笔锋顺势离开纸面，末端成尖，如"悬针"、捺脚、撇梢。', def_en: 'The tip leaves the paper along the direction of travel, ending in a point: a hanging needle, a flared tail, a sweep’s tip.' },
+    { id: 'dunfeng', zh: '蹲锋', en: 'crouching tip', py: 'dūn fēng', cat: 'bifa',
+      def_zh: '笔锋下压如人下蹲，用力而不移动，常为出锋前的蓄势。', def_en: 'The tip presses down like a crouch — force without displacement, usually storing power before an exit.' },
+    { id: 'nüfeng', zh: '衄锋', en: 'tip retraction', py: 'nǜ fēng', cat: 'bifa',
+      def_zh: '笔锋在笔画内微微退却再前进，使转折处筋骨内含，不留浮滑。', def_en: 'A slight retreat of the tip inside the stroke before continuing, which keeps tendon in the corners and prevents slickness.' },
+    { id: 'qiangbi', zh: '抢笔', en: 'snatched entry', py: 'qiǎng bǐ', cat: 'bifa',
+      def_zh: '起笔或收笔时笔锋凌空迅速切入或离去，动作疾促而留势，多见于行草。', def_en: 'A rapid snatch into or out of the paper, leaving momentum behind; common in running and cursive script.' },
+    { id: 'zhubi', zh: '驻笔', en: 'dwelling', py: 'zhù bǐ', cat: 'bifa',
+      def_zh: '笔锋在纸上短暂停留而不移动，墨色因而加重、纸面积墨，即本作所测量的"驻笔时长"。', def_en: 'The tip rests on the paper without travelling, darkening the ink and pooling it — measured in this work as dwell time.' },
+    { id: 'huanbi', zh: '换笔', en: 'changing the hair group', py: 'huàn bǐ', cat: 'bifa',
+      def_zh: '转折处调换承力的笔毫部分，使锋面始终顺行，避免散锋。', def_en: 'At a turn, switching which part of the hairs carries the load so the tip stays aligned with travel.' },
+    { id: 'dafeng', zh: '搭锋', en: 'overlapping entry', py: 'dā fēng', cat: 'bifa',
+      def_zh: '承接上一笔的收笔处起笔，笔锋重叠衔接，使两笔气脉贯通。', def_en: 'Starting where the previous stroke ended, overlapping the tips so the two strokes share one breath.' },
+    { id: 'zhechai', zh: '折钗股', en: 'bent hairpin', py: 'zhé chāi gǔ', cat: 'bifa',
+      def_zh: '喻转折圆劲有力而不扁不散，如金属发钗弯折而不断。', def_en: 'A metaphor for a rounded corner that is strong and round in section, like a bent metal hairpin that does not break.' },
+    { id: 'wulouhen', zh: '屋漏痕', en: 'leak trace', py: 'wū lòu hén', cat: 'bifa',
+      def_zh: '喻笔画沉实自然、边缘略有起伏而不做作，如屋漏雨水沿墙缓下所留之痕。', def_en: 'A metaphor for strokes that are dense and unforced, edges slightly irregular, like the trace of rain seeping down a wall.' },
+    { id: 'zhuihuasha', zh: '锥画沙', en: 'cone drawing in sand', py: 'zhuī huà shā', cat: 'bifa',
+      def_zh: '喻中锋藏锋入纸，线条沉入纸面如同锥尖划沙，两边凸起中间凹下。', def_en: 'A centred concealed tip sinking into the paper, like a cone drawn through sand: raised at the edges, sunken at the centre.' },
+    { id: 'yinyinni', zh: '印印泥', en: 'seal pressed in clay', py: 'yìn yìn ní', cat: 'bifa',
+      def_zh: '喻用笔沉稳肯定，起收如印章压入泥中，力透而形准。', def_en: 'A metaphor for decisive, weighted use of the brush, like a seal pressed into clay: force through, form exact.' },
+    { id: 'feibai', zh: '飞白', en: 'flying white', py: 'fēi bái', cat: 'bifa',
+      def_zh: '行笔迅疾或墨少时笔毫不能尽墨，笔画中出现丝丝白痕，是速度与墨量共同作用的可见证据。', def_en: 'When the brush moves fast or runs dry, ink fails to fill the hairs and threads of white appear — visible evidence of speed and ink load.' },
+    { id: 'cantouyanwei', zh: '蚕头燕尾', en: 'silkworm head, swallow tail', py: 'cán tóu yàn wěi', cat: 'bifa',
+      def_zh: '隶书横画与捺画的典型形态：起笔圆重如蚕头，收笔重按后上挑外张如燕尾。', def_en: 'The clerical-script horizontal: a round heavy entry like a silkworm’s head, and an exit pressed then flared outward like a swallow’s tail.' },
+    { id: 'yibosanzhe', zh: '一波三折', en: 'one wave, three folds', py: 'yī bō sān zhé', cat: 'bifa',
+      def_zh: '笔画在行进中方向与轻重多次变化，起、行、收各有转折，故不平板。', def_en: 'A stroke changes direction and weight several times in its course, so entry, travel and exit each have their fold.' },
+    { id: 'bifeng', zh: '笔锋', en: 'brush tip', py: 'bǐ fēng', cat: 'bifa',
+      def_zh: '笔毫聚拢后最前端的受力部分，笔法的全部变化都经由此处发生。', def_en: 'The loaded front of the gathered hairs; every change of brushwork passes through it.' },
+    { id: 'yunwan', zh: '运腕', en: 'wrist movement', py: 'yùn wàn', cat: 'bifa',
+      def_zh: '以腕为轴带动笔管运动，腕活则笔活；大字运肘，小字运腕。', def_en: 'Driving the brush from the wrist; a live wrist makes a live brush. Large characters move from the elbow, small ones from the wrist.' },
+    { id: 'xuwan', zh: '悬腕', en: 'suspended wrist', py: 'xuán wàn', cat: 'bifa',
+      def_zh: '腕肘离案悬空作书，运笔自由而力度需自控，行草与大字常用。', def_en: 'Writing with wrist and elbow lifted clear of the desk: free movement that must be self-controlled; usual for large characters and running script.' },
+    { id: 'zhenwan', zh: '枕腕', en: 'rested wrist', py: 'zhěn wàn', cat: 'bifa',
+      def_zh: '以左手垫于右腕之下或腕贴桌面作书，稳定精细，宜小楷。', def_en: 'The right wrist resting on the left hand or the desk: stability and precision, suited to small regular script.' },
+    { id: 'litou', zh: '力透纸背', en: 'force through the paper', py: 'lì tòu zhǐ bèi', cat: 'bifa',
+      def_zh: '形容笔力沉实深入，非指物理压力，而是墨与纸咬合后线条的厚度感。', def_en: 'Force reaching through the back of the paper: not physical pressure but the thickness of a line where ink and paper grip.' },
+    { id: 'wanhao', zh: '万毫齐力', en: 'ten thousand hairs in unison', py: 'wàn háo qí lì', cat: 'bifa',
+      def_zh: '笔毫铺开时每一根都同时发力，笔画方能既厚且匀。', def_en: 'When the hairs are spread, every one of them works at once, so the stroke is both thick and even.' },
+
+    /* ---------------- 永字八法 · Eight principles ---------------- */
+    { id: 'yong-ce', zh: '侧（点）', en: 'ce — the dot', py: 'cè', cat: 'yong',
+      def_zh: '八法之一，即"点"。侧锋峻落，如鸟翻然侧下，一点中含起行收三段。', def_en: 'The first of the eight principles: the dot. A slanted landing like a bird turning down; entry, travel and retrieval within one dot.', src: '《永字八法》' },
+    { id: 'yong-le', zh: '勒（横）', en: 'le — the horizontal', py: 'lè', cat: 'yong',
+      def_zh: '八法之二，即"横"。如勒马用缰，逆入平出，中段略提，两端着力。', def_en: 'The second: the horizontal. Like reining a horse — reversed entry, level exit, lifted middle, weighted ends.', src: '《永字八法》' },
+    { id: 'yong-nu', zh: '努（竖）', en: 'nu — the vertical', py: 'nǔ', cat: 'yong',
+      def_zh: '八法之三，即"竖"。用力下行，不可过直，直则无力，须含"背"势。', def_en: 'The third: the vertical. Strength driven down; never dead straight, for straightness kills force — it carries a slight back-curve.', src: '《永字八法》' },
+    { id: 'yong-ti', zh: '趯（钩）', en: 'ti — the hook', py: 'tì', cat: 'yong',
+      def_zh: '八法之四，即"钩"。如人踢脚，先蓄势后轻疾出锋。', def_en: 'The fourth: the hook. Like a foot kicking off — store first, then exit light and swift.', src: '《永字八法》' },
+    { id: 'yong-ce2', zh: '策（提）', en: 'ce — the rising stroke', py: 'cè', cat: 'yong',
+      def_zh: '八法之五，即"提"（仰横）。如策马用鞭，发笔着力，收笔得力。', def_en: 'The fifth: the rising stroke. Like a whip on a horse — force at the launch, effect at the finish.', src: '《永字八法》' },
+    { id: 'yong-lve', zh: '掠（长撇）', en: 'lüe — the long sweep', py: 'lüè', cat: 'yong',
+      def_zh: '八法之六，即"长撇"。如以手拂物，疾而势长，贵在送出而非甩出。', def_en: 'The sixth: the long left-falling sweep. Like brushing something away — fast, long in momentum, sent rather than flung.', src: '《永字八法》' },
+    { id: 'yong-zhuo', zh: '啄（短撇）', en: 'zhuo — the short peck', py: 'zhuó', cat: 'yong',
+      def_zh: '八法之七，即"短撇"。如鸟啄食，锐而速，贵在准不在长。', def_en: 'The seventh: the short left-falling stroke. Like a bird pecking — sharp and swift, valued for aim not length.', src: '《永字八法》' },
+    { id: 'yong-zhe', zh: '磔（捺）', en: 'zhe — the pressing stroke', py: 'zhé', cat: 'yong',
+      def_zh: '八法之八，即"捺"。一波三折，起轻、行重、末按而复收，即蚕头燕尾之势。', def_en: 'The eighth: the right-falling press. One wave, three folds — light start, growing weight, final press and release.', src: '《永字八法》' },
+    { id: 'yongzibafa', zh: '永字八法', en: 'the Eight Principles of Yong', py: 'yǒng zì bā fǎ', cat: 'yong',
+      def_zh: '以"永"字八笔概括楷书全部基本笔法（侧勒努趯策掠啄磔）的传统教学体系，历代被视为笔法总纲。', def_en: 'The traditional system that derives all basic regular-script brushwork from the eight strokes of the character 永 (yong).', src: '《永字八法》' },
+    { id: 'jiushi', zh: '九势', en: 'nine potentials', py: 'jiǔ shì', cat: 'yong',
+      def_zh: '传蔡邕所列九种笔势（藏头护尾、疾势、掠笔等），是中国最早论笔势的系统文字。', def_en: 'Nine brush potentials attributed to Cai Yong — among the earliest systematic Chinese writing on brush momentum.', src: '蔡邕《九势》' },
+
+    /* ---------------- 墨法 · Ink method ---------------- */
+    { id: 'mofenwuse', zh: '墨分五色', en: 'five colours of ink', py: 'mò fēn wǔ sè', cat: 'mofa',
+      def_zh: '以浓淡干湿焦的变化代替色彩，使单色水墨仍有丰富的层次。', def_en: 'Replacing colour with gradations of dense, light, dry, wet and scorched ink, so a monochrome wash still has many levels.' },
+    { id: 'nongmo', zh: '浓墨', en: 'dense ink', py: 'nóng mò', cat: 'mofa',
+      def_zh: '墨色厚重近黑，用于提神醒目，楷书正体多用。', def_en: 'Ink so thick it reads almost black; used to sharpen the eye, common in regular script.' },
+    { id: 'danmo', zh: '淡墨', en: 'light ink', py: 'dàn mò', cat: 'mofa',
+      def_zh: '含水多而墨色清浅，取其雅逸与层次。', def_en: 'Ink diluted with water for clarity and layering, valued for elegance.' },
+    { id: 'ganmo', zh: '干墨', en: 'dry ink', py: 'gān mò', cat: 'mofa',
+      def_zh: '墨少而干，行笔快则出飞白，见苍劲之气。', def_en: 'Ink-poor and dry; fast travel produces flying white, giving weathered force.' },
+    { id: 'shimo', zh: '湿墨', en: 'wet ink', py: 'shī mò', cat: 'mofa',
+      def_zh: '墨饱水足，笔画边缘洇开，气象丰润。', def_en: 'Ink loaded with water so edges bleed outward: a rich, moist presence.' },
+    { id: 'jiaomo', zh: '焦墨', en: 'scorched ink', py: 'jiāo mò', cat: 'mofa',
+      def_zh: '墨极浓而含水极少，笔痕乌黑发亮，如焦。', def_en: 'Ink at maximum density with minimum water: a black, glossy trace.' },
+    { id: 'zhangmo', zh: '涨墨', en: 'blooming ink', py: 'zhǎng mò', cat: 'mofa',
+      def_zh: '墨落纸后向笔画外缘洇散成晕，边缘失形而有意外之趣。', def_en: 'Ink spreading beyond the stroke’s edge into a halo, losing contour and gaining accident.' },
+    { id: 'kubi', zh: '枯笔', en: 'dry brush', py: 'kū bǐ', cat: 'mofa',
+      def_zh: '笔中墨将尽时行笔，出现丝丝空隙，与飞白同源于墨量与速度。', def_en: 'Writing as the brush empties, leaving thread-like gaps; the same origin as flying white — ink load and speed.' },
+    { id: 'runbi', zh: '润笔', en: 'moist brush', py: 'rùn bǐ', cat: 'mofa',
+      def_zh: '墨色丰润而不洇，行笔流畅，为楷行的常态。', def_en: 'Ink rich without bleeding, travel fluent: the normal condition of regular and running script.' },
+    { id: 'pomo', zh: '泼墨', en: 'splashed ink', py: 'pō mò', cat: 'mofa',
+      def_zh: '大量水墨泼洒于纸面再因势成形，写意画与大草多用。', def_en: 'Ink poured onto the paper and shaped by its own flow; usual in expressive painting and wild cursive.' },
+    { id: 'sumo', zh: '宿墨', en: 'overnight ink', py: 'sù mò', cat: 'mofa',
+      def_zh: '隔夜留存之墨，脱胶而颗粒粗，落纸有沉着之趣。', def_en: 'Ink left overnight: the glue has separated and the grains coarsen, giving a settled texture.' },
+    { id: 'moyun', zh: '墨韵', en: 'ink resonance', py: 'mò yùn', cat: 'mofa',
+      def_zh: '墨在纸上由浓到淡、由湿到枯的整体气息与余味。', def_en: 'The overall breathing and aftertaste of ink on paper as it passes from wet to dry, dense to light.' },
+
+    /* ---------------- 结体 · Structure ---------------- */
+    { id: 'jieti', zh: '结体', en: 'character structure', py: 'jié tǐ', cat: 'jieti',
+      def_zh: '单个字内部点画的安排与比例关系，亦称"结字""间架"。', def_en: 'The arrangement and proportion of strokes inside a single character; also called framing.' },
+    { id: 'jianjia', zh: '间架', en: 'frame', py: 'jiān jià', cat: 'jieti',
+      def_zh: '字的骨架与分间布白，如屋有间架，决定字的稳与不稳。', def_en: 'The skeleton and spacing of a character, as a building has its frame; it decides whether the character stands.' },
+    { id: 'zhonggong', zh: '中宫', en: 'central palace', py: 'zhōng gōng', cat: 'jieti',
+      def_zh: '字的核心区域。中宫收紧则精神聚，中宫宽放则气象舒。', def_en: 'The core zone of a character: tight, and the spirit gathers; loose, and the presence expands.' },
+    { id: 'birang', zh: '避让', en: 'yielding', py: 'bì ràng', cat: 'jieti',
+      def_zh: '笔画之间互相让出空间，避免冲突，使字内通透。', def_en: 'Strokes yielding space to one another so the interior stays legible.' },
+    { id: 'chuancha', zh: '穿插', en: 'interpenetration', py: 'chuān chā', cat: 'jieti',
+      def_zh: '笔画互相穿插交错，使结体紧凑而有张力。', def_en: 'Strokes weaving into one another, making the structure compact and tense.' },
+    { id: 'huying', zh: '呼应', en: 'mutual response', py: 'hū yìng', cat: 'jieti',
+      def_zh: '笔画之间的顾盼关系，上一笔的收势预示下一笔的起势。', def_en: 'The looking-at-each-other of strokes: the finish of one foreshadows the launch of the next.' },
+    { id: 'xiangbei', zh: '向背', en: 'facing and turning away', py: 'xiàng bèi', cat: 'jieti',
+      def_zh: '左右两部分相向或相背的姿态关系，决定字的开合。', def_en: 'Whether the two halves of a character face each other or turn apart, setting its opening and closing.' },
+    { id: 'qizheng', zh: '欹正', en: 'slant and upright', py: 'qī zhèng', cat: 'jieti',
+      def_zh: '字势的倾斜与端正。欹而能正、正中见欹，方为高境。', def_en: 'Tilt versus uprightness: to slant yet stand, to stand yet lean, is the higher level.' },
+    { id: 'shumi', zh: '疏密', en: 'sparse and dense', py: 'shū mì', cat: 'jieti',
+      def_zh: '点画分布的疏朗与紧密，"疏可走马，密不透风"。', def_en: 'The openness or density of stroke distribution: "sparse enough for a horse to pass, dense enough to keep out wind".' },
+    { id: 'jibaifdanghei', zh: '计白当黑', en: 'counting white as black', py: 'jì bái dāng hēi', cat: 'jieti',
+      def_zh: '把留白当作与墨迹同等重要的实体来经营，是空白与墨迹的双重构图。', def_en: 'Treating blank paper as a positive element equal to ink: composition in both white and black.' },
+    { id: 'bubai', zh: '布白', en: 'spacing of white', py: 'bù bái', cat: 'jieti',
+      def_zh: '安排点画之间的空白，使其均匀而有变化。', def_en: 'Distributing the white between strokes so it is even yet varied.' },
+    { id: 'neizhe', zh: '内擫', en: 'inward grip', py: 'nèi yē', cat: 'jieti',
+      def_zh: '笔势向内收敛，两竖相向，结体紧峭，王羲之、欧阳询多此法。', def_en: 'Momentum drawn inward with the verticals facing each other: a taut structure, favoured by Wang Xizhi and Ouyang Xun.' },
+    { id: 'waituo', zh: '外拓', en: 'outward extension', py: 'wài tuò', cat: 'jieti',
+      def_zh: '笔势向外扩展，两竖相背，结体宽博，颜真卿多此法。', def_en: 'Momentum extended outward with the verticals turning apart: a broad structure, favoured by Yan Zhenqing.' },
+    { id: 'zhongxin', zh: '重心', en: 'centre of gravity', py: 'zhòng xīn', cat: 'jieti',
+      def_zh: '字内分量集中的位置，重心稳则字立，重心偏而有意则字活。', def_en: 'Where a character’s weight gathers: steady, and the character stands; deliberately displaced, and it comes alive.' },
+    { id: 'pianpang', zh: '偏旁', en: 'radical component', py: 'piān páng', cat: 'jieti',
+      def_zh: '合体字的构成部件，其大小高下决定整字比例。', def_en: 'The components of a compound character; their size and height set the proportions of the whole.' },
+
+    /* ---------------- 章法 · Composition ---------------- */
+    { id: 'zhangfa', zh: '章法', en: 'composition', py: 'zhāng fǎ', cat: 'zhangfa',
+      def_zh: '整幅作品的布局经营，包括字距、行距、行气、落款与钤印位置。', def_en: 'The layout of a whole work: character and line spacing, flow of the columns, placement of signature and seals.' },
+    { id: 'hangqi', zh: '行气', en: 'column flow', py: 'háng qì', cat: 'zhangfa',
+      def_zh: '一行之内自上而下的气脉贯通，行气断则整幅散。', def_en: 'The continuous breath down a column; break it and the whole sheet falls apart.' },
+    { id: 'ziju', zh: '字距', en: 'character spacing', py: 'zì jù', cat: 'zhangfa',
+      def_zh: '同一行内相邻字之间的距离，隶楷多紧、行草多随势。', def_en: 'Distance between adjacent characters in a column: usually tight in clerical and regular script, momentum-driven in running and cursive.' },
+    { id: 'hangju', zh: '行距', en: 'line spacing', py: 'háng jù', cat: 'zhangfa',
+      def_zh: '相邻两行之间的距离，行距宽则疏朗，窄则茂密。', def_en: 'Distance between columns: wide reads airy, narrow reads dense.' },
+    { id: 'fenhangbubai', zh: '分行布白', en: 'laying out columns and white', py: 'fēn háng bù bái', cat: 'zhangfa',
+      def_zh: '整幅作品的行列划分与空白分布，是章法的总纲。', def_en: 'Dividing the sheet into columns and distributing its white: the master plan of composition.' },
+    { id: 'luokuan', zh: '落款', en: 'signature inscription', py: 'luò kuǎn', cat: 'zhangfa',
+      def_zh: '正文之后题写的时间、名号、缘由等，其位置与字数参与整体构图。', def_en: 'The date, name and occasion written after the main text; its placement and length are part of the composition.' },
+    { id: 'tiba', zh: '题跋', en: 'colophon', py: 'tí bá', cat: 'zhangfa',
+      def_zh: '写在作品前后或拖尾的品评、考证文字，是碑帖流传的重要证据。', def_en: 'Commentary or authentication written before or after a work; key evidence of a piece’s transmission.' },
+    { id: 'qianyin', zh: '钤印', en: 'sealing', py: 'qián yìn', cat: 'zhangfa',
+      def_zh: '在作品上盖印。印为朱色，与墨形成对比，兼作章法上的"压秤"。', def_en: 'Pressing seals onto the work: vermilion against ink, also acting as counterweight in the composition.' },
+    { id: 'yinshouzhang', zh: '引首章', en: 'opening seal', py: 'yǐn shǒu zhāng', cat: 'zhangfa',
+      def_zh: '盖于作品起首处的闲章，起引导与平衡作用。', def_en: 'A leisure seal at the start of a work, guiding the eye and balancing the sheet.' },
+    { id: 'yajiaozhang', zh: '压角章', en: 'corner seal', py: 'yā jiǎo zhāng', cat: 'zhangfa',
+      def_zh: '盖于作品一角以稳住重心的印章。', def_en: 'A seal placed in a corner to settle the visual weight.' },
+    { id: 'tiaofu', zh: '条幅', en: 'hanging scroll strip', py: 'tiáo fú', cat: 'zhangfa',
+      def_zh: '竖长形单幅形制，一行或数行直书，最宜表现行气。', def_en: 'A tall single-sheet format of one or a few columns, best suited to showing column flow.' },
+    { id: 'zhongtang', zh: '中堂', en: 'hall piece', py: 'zhōng táng', cat: 'zhangfa',
+      def_zh: '悬挂于厅堂正中的大幅方形或近方形作品。', def_en: 'A large, squarish work hung at the centre of a hall.' },
+    { id: 'shoujuan', zh: '手卷', en: 'handscroll', py: 'shǒu juàn', cat: 'zhangfa',
+      def_zh: '横向长卷，随展随读，时间与空间同时展开，最接近"时间的艺术"。', def_en: 'A long horizontal scroll unrolled as it is read: space and time unfolding together, the closest format to a temporal art.' },
+    { id: 'ceye', zh: '册页', en: 'album leaf', py: 'cè yè', cat: 'zhangfa',
+      def_zh: '装订成册的小幅作品，一页一景，便于近观细品笔法。', def_en: 'A bound album of small leaves, one view per page, made for close reading of brushwork.' },
+    { id: 'shanmian', zh: '扇面', en: 'fan leaf', py: 'shàn miàn', cat: 'zhangfa',
+      def_zh: '折扇或团扇面上的书写，受弧形空间限制，章法最见巧思。', def_en: 'Writing on a folding or round fan: the curved field makes composition a test of wit.' },
+    { id: 'doufang', zh: '斗方', en: 'square leaf', py: 'dǒu fāng', cat: 'zhangfa',
+      def_zh: '近似正方形的尺幅，字数少而留白多，最考结体与布白。', def_en: 'A nearly square sheet with few characters and much white: a test of structure and spacing.' },
+
+    /* ---------------- 书体 · Script types ---------------- */
+    { id: 'zhuanshu', zh: '篆书', en: 'seal script', py: 'zhuàn shū', cat: 'shuti',
+      def_zh: '秦统一前后的古文字正体，线条匀圆、结构对称，分大篆小篆。', def_en: 'The formal script before and around the Qin unification: even rounded lines and symmetrical structure; great and small seal script.' },
+    { id: 'dazhuan', zh: '大篆', en: 'great seal script', py: 'dà zhuàn', cat: 'shuti',
+      def_zh: '小篆以前的古文字统称，含金文、石鼓文等，字形大小不一。', def_en: 'The scripts before small seal: bronze inscriptions, the Stone Drums and others, with irregular character sizes.' },
+    { id: 'xiaozhuan', zh: '小篆', en: 'small seal script', py: 'xiǎo zhuàn', cat: 'shuti',
+      def_zh: '秦代李斯等整理的标准篆体，笔画粗细一致、圆转对称。', def_en: 'The standardised seal script of the Qin, with uniform stroke weight and rounded symmetry.' },
+    { id: 'lishu', zh: '隶书', en: 'clerical script', py: 'lì shū', cat: 'shuti',
+      def_zh: '汉代通行正体，由篆书简化而来，横画有波磔、字形扁方，是"隶变"的结果。', def_en: 'The Han dynasty formal script, simplified from seal script: waved horizontals, a squat rectangular frame — the outcome of the "clerical reformation".' },
+    { id: 'kaishu', zh: '楷书', en: 'regular script', py: 'kǎi shū', cat: 'shuti',
+      def_zh: '由隶书演变而来的标准正体，点画分明、法度完备，至今为通行字体。', def_en: 'The standard formal script evolved from clerical: distinct strokes and complete rules, still the model for type today.' },
+    { id: 'xingshu', zh: '行书', en: 'running script', py: 'xíng shū', cat: 'shuti',
+      def_zh: '介于楷草之间的书体，笔画连绵而字形可识，书写速度最快而法度仍存。', def_en: 'Between regular and cursive: strokes connected yet characters legible — the fastest hand that keeps its rules.' },
+    { id: 'caoshu', zh: '草书', en: 'cursive script', py: 'cǎo shū', cat: 'shuti',
+      def_zh: '为求书写迅捷而高度简省连绵的书体，重节奏与气势，辨识需专门学习。', def_en: 'A highly abbreviated, connected script made for speed, valuing rhythm and momentum; reading it requires training.' },
+    { id: 'zhangcao', zh: '章草', en: 'chapter cursive', py: 'zhāng cǎo', cat: 'shuti',
+      def_zh: '隶书的草写，字字独立而带波磔，是草书最早的成熟形态。', def_en: 'The cursive of clerical script: characters separate, with waved tails — the earliest mature cursive.' },
+    { id: 'jincao', zh: '今草', en: 'modern cursive', py: 'jīn cǎo', cat: 'shuti',
+      def_zh: '章草之后的连绵草体，字与字之间可以牵丝相接。', def_en: 'The connected cursive after chapter cursive, in which characters may be linked by threads of ink.' },
+    { id: 'kuangcao', zh: '狂草', en: 'wild cursive', py: 'kuáng cǎo', cat: 'shuti',
+      def_zh: '极端放纵的草书，连绵数字不断，以情绪与速度为第一义。', def_en: 'Cursive at its most released: many characters in one unbroken run, emotion and speed first.' },
+    { id: 'weibei', zh: '魏碑', en: 'Wei stele script', py: 'wèi bēi', cat: 'shuti',
+      def_zh: '北朝碑刻楷书，方峻雄强，刀意明显，与南朝帖学楷书形成对照。', def_en: 'The regular script of Northern Dynasties steles: square, powerful, visibly chiselled — a counterpoint to the southern model-book tradition.' },
+    { id: 'jinwen', zh: '金文', en: 'bronze inscription', py: 'jīn wén', cat: 'shuti',
+      def_zh: '铸刻于青铜器上的文字，笔画肥厚、结体自由，商周为主。', def_en: 'Texts cast or incised on bronze vessels: thick strokes and free structure, mostly Shang and Zhou.' },
+    { id: 'jiaguwen', zh: '甲骨文', en: 'oracle bone script', py: 'jiǎ gǔ wén', cat: 'shuti',
+      def_zh: '刻于龟甲兽骨上的商代占卜文字，是目前所见最早的成熟汉字系统。', def_en: 'Shang divination texts cut into shells and bones: the earliest mature Chinese writing known.' },
+    { id: 'shiguwen', zh: '石鼓文', en: 'Stone Drum inscriptions', py: 'shí gǔ wén', cat: 'shuti',
+      def_zh: '春秋秦国刻于十个石鼓上的大篆，字形方正，为篆隶过渡的关键材料。', def_en: 'Great seal script on ten stone drums of the state of Qin: a key document of the seal-to-clerical transition.' },
+    { id: 'jiandu', zh: '简牍', en: 'bamboo and wooden slips', py: 'jiǎn dú', cat: 'shuti',
+      def_zh: '写在竹木简上的墨迹，未经刻石与摹刻，最能反映古人真实的书写速度。', def_en: 'Ink writing on bamboo and wood slips: unincised, uncopied, the truest record of real writing speed.' },
+    { id: 'boshui', zh: '帛书', en: 'silk manuscript', py: 'bó shū', cat: 'shuti',
+      def_zh: '写在丝帛上的墨迹，笔画圆转流利，多出土于战国至汉代墓葬。', def_en: 'Ink writing on silk: rounded fluent strokes, mostly excavated from Warring States and Han tombs.' },
+    { id: 'niaochongshu', zh: '鸟虫书', en: 'bird-worm script', py: 'niǎo chóng shū', cat: 'shuti',
+      def_zh: '春秋战国时的装饰性篆体，笔画作鸟形虫形，多用于兵器与器物铭文。', def_en: 'A decorative seal script of the Warring States, strokes shaped as birds and insects, used on weapons and vessels.' },
+    { id: 'xingkai', zh: '行楷', en: 'running-regular', py: 'xíng kǎi', cat: 'shuti',
+      def_zh: '楷法为主而略参行书连带的书体，赵孟頫诸帖多用。', def_en: 'Regular script with a touch of running connection, as in Zhao Mengfu’s steles.' },
+
+    /* ---------------- 笔势与气韵 · Momentum & spirit ---------------- */
+    { id: 'bishi', zh: '笔势', en: 'brush momentum', py: 'bǐ shì', cat: 'bishi',
+      def_zh: '笔画在时间中的运动趋势与方向感，是"笔法"之所以属于时间艺术的根据。', def_en: 'The tendency and direction of a stroke in time: the ground on which brushwork is a temporal art.' },
+    { id: 'qiyun', zh: '气韵', en: 'spirit resonance', py: 'qì yùn', cat: 'bishi',
+      def_zh: '作品整体的生命气息与余韵，谢赫"六法"之首，后世移用于书。', def_en: 'The living breath and aftertone of a work; first of Xie He’s six laws, later applied to calligraphy.' },
+    { id: 'guli', zh: '骨力', en: 'bone force', py: 'gǔ lì', cat: 'bishi',
+      def_zh: '笔画内在的支撑力，与肥瘦无关；骨力强者虽细而挺。', def_en: 'The inner support of a stroke, independent of thickness: a bony stroke is firm even when thin.' },
+    { id: 'jin', zh: '筋', en: 'tendon', py: 'jīn', cat: 'bishi',
+      def_zh: '笔画之间的联结之力，使断续处仍相连属。', def_en: 'The connective force between strokes, keeping separated parts joined.' },
+    { id: 'xue', zh: '血', en: 'blood', py: 'xuè', cat: 'bishi',
+      def_zh: '喻墨色的丰润，水分为字之血，血枯则字燥。', def_en: 'A metaphor for the richness of ink: water is the blood of a character, and when it dries the character parches.' },
+    { id: 'rou', zh: '肉', en: 'flesh', py: 'ròu', cat: 'bishi',
+      def_zh: '喻笔画的丰腴程度，肉多则俗、肉少则枯，须骨肉相称。', def_en: 'A metaphor for the fullness of a stroke: too much is vulgar, too little is parched; bone and flesh must match.' },
+    { id: 'shencai', zh: '神采', en: 'spiritual radiance', py: 'shén cǎi', cat: 'bishi',
+      def_zh: '字超越形似之后所显现的精神光彩，是书法的最终评价对象。', def_en: 'The radiance a character shows once likeness is transcended: the final object of evaluation.' },
+    { id: 'yijing', zh: '意境', en: 'evoked realm', py: 'yì jìng', cat: 'bishi',
+      def_zh: '作品引发的想象空间与情绪氛围，非字形本身所能穷尽。', def_en: 'The imagined space and mood a work opens, beyond what its forms exhaust.' },
+    { id: 'shujuanqi', zh: '书卷气', en: 'scholarly air', py: 'shū juàn qì', cat: 'bishi',
+      def_zh: '作品流露的文雅温润气质，多与学养相关，与工匠气相对。', def_en: 'A cultivated, gentle quality in a work, tied to learning and opposed to mere craft.' },
+    { id: 'jinshiqi', zh: '金石气', en: 'epigraphic air', py: 'jīn shí qì', cat: 'bishi',
+      def_zh: '碑刻与青铜铭文因刻凿、风化而形成的苍茫质感。', def_en: 'The weathered, vast quality produced in inscriptions by carving and erosion.' },
+    { id: 'zhuo', zh: '拙', en: 'bluntness', py: 'zhuō', cat: 'bishi',
+      def_zh: '不求工巧而自然厚重，与"巧"相对，被认为更高的品格。', def_en: 'Heaviness without seeking cleverness, opposed to technical smartness and held the higher virtue.' },
+    { id: 'mei', zh: '媚', en: 'charm', py: 'mèi', cat: 'bishi',
+      def_zh: '姿态柔美可悦，过则伤骨，须以骨力约束。', def_en: 'Pleasing softness of posture; in excess it damages bone, and must be held by force.' },
+    { id: 'piaoyi', zh: '飘逸', en: 'ethereal drift', py: 'piāo yì', cat: 'bishi',
+      def_zh: '笔势轻举超脱，如行云流水，行草中多见。', def_en: 'Momentum lifted and free, like drifting cloud and flowing water; common in running and cursive.' },
+    { id: 'chenzhuo', zh: '沉着', en: 'composure', py: 'chén zhuó', cat: 'bishi',
+      def_zh: '用笔稳定不浮，落纸有分量，与"痛快"共同构成理想的张力。', def_en: 'Steady, unfloating brushwork with weight on the paper; with "decisiveness" it forms the ideal tension.' },
+    { id: 'tongkuai', zh: '痛快', en: 'decisiveness', py: 'tòng kuài', cat: 'bishi',
+      def_zh: '行笔果断爽利，气象畅达，与沉着并称"沉着痛快"。', def_en: 'Decisive, crisp travel with an open presence; paired with composure as the classic formula.' },
+    { id: 'fadu', zh: '法度', en: 'rules and measure', py: 'fǎ dù', cat: 'bishi',
+      def_zh: '用笔与结体的规范尺度，入门须守法度，出门须忘法度。', def_en: 'The normative measure of brushwork and structure: learn it to enter, forget it to leave.' },
+    { id: 'yiqu', zh: '意趣', en: 'inventive interest', py: 'yì qù', cat: 'bishi',
+      def_zh: '作品超出成法之外的机智与趣味。', def_en: 'The wit and interest a work shows beyond established method.' },
+    { id: 'zhuozhuo', zh: '稚拙', en: 'naive bluntness', py: 'zhì zhuō', cat: 'bishi',
+      def_zh: '如儿童般不加修饰的拙趣，被认为高于熟练的甜俗。', def_en: 'An unpolished bluntness like a child’s, held above skilled sweetness.' },
+
+    /* ---------------- 工具材料 · Tools & materials ---------------- */
+    { id: 'maobi', zh: '毛笔', en: 'writing brush', py: 'máo bǐ', cat: 'qiju',
+      def_zh: '中国书法的核心工具，笔毫聚则尖、铺则宽，其弹性与蓄墨决定了笔法的可能。', def_en: 'The core tool of Chinese calligraphy: gathered it points, spread it widens; its spring and ink-holding set the possibilities of brushwork.' },
+    { id: 'bihao', zh: '笔毫', en: 'brush hairs', py: 'bǐ háo', cat: 'qiju',
+      def_zh: '笔头所用兽毛，分硬毫软毫，决定笔的弹性与出水。', def_en: 'The animal hair of the head: stiff or soft, setting spring and flow.' },
+    { id: 'jianhao', zh: '兼毫', en: 'mixed-hair brush', py: 'jiān háo', cat: 'qiju',
+      def_zh: '硬毫与软毫混制，刚柔相济，最宜初学与楷书。', def_en: 'A blend of stiff and soft hair, firm and yielding at once; best for learners and regular script.' },
+    { id: 'yanghao', zh: '羊毫', en: 'goat-hair brush', py: 'yáng háo', cat: 'qiju',
+      def_zh: '山羊毛制，柔软蓄墨多，宜大字与写意。', def_en: 'Goat hair: soft and ink-hungry, suited to large characters and expressive work.' },
+    { id: 'langhao', zh: '狼毫', en: 'weasel-hair brush', py: 'láng háo', cat: 'qiju',
+      def_zh: '黄鼠狼毛制，弹性强、出水快，宜行草与小楷。', def_en: 'Weasel hair: springy and quick-flowing, suited to running script and small regular script.' },
+    { id: 'zihao', zh: '紫毫', en: 'purple hare-hair brush', py: 'zǐ háo', cat: 'qiju',
+      def_zh: '野兔脊毛制，最为刚劲，锋颖锐利。', def_en: 'Hare’s back hair, the stiffest and sharpest of tips.' },
+    { id: 'xuanzhi', zh: '宣纸', en: 'xuan paper', py: 'xuān zhǐ', cat: 'qiju',
+      def_zh: '安徽宣城一带所产书画用纸，吸水性强，能记录墨的渗化与飞白。', def_en: 'Paper from the Xuancheng region, highly absorbent, able to record bleeding and flying white.' },
+    { id: 'shengxuan', zh: '生宣', en: 'raw xuan paper', py: 'shēng xuān', cat: 'qiju',
+      def_zh: '未经矾水处理的宣纸，吸水快、洇散明显，宜行草写意。', def_en: 'Untreated xuan: fast absorption and visible bleeding, suited to running script and free painting.' },
+    { id: 'shuxuan', zh: '熟宣', en: 'sized xuan paper', py: 'shú xuān', cat: 'qiju',
+      def_zh: '经矾水处理的宣纸，不洇墨，宜工笔与小楷。', def_en: 'Sized xuan that resists bleeding, suited to fine work and small regular script.' },
+    { id: 'yan', zh: '砚', en: 'inkstone', py: 'yàn', cat: 'qiju',
+      def_zh: '研墨之器，石质细腻者发墨快而墨细，与笔、墨、纸并称文房四宝。', def_en: 'The stone on which ink is ground: a fine stone yields ink quickly and finely. With brush, ink and paper, one of the four treasures.' },
+    { id: 'mo', zh: '墨', en: 'ink', py: 'mò', cat: 'qiju',
+      def_zh: '书写用黑色颜料，传统为松烟或油烟加胶制成墨锭，研磨后使用。', def_en: 'The black pigment of writing: traditionally pine-soot or oil-soot with glue, formed into a stick and ground for use.' },
+    { id: 'moting', zh: '墨锭', en: 'ink stick', py: 'mò dìng', cat: 'qiju',
+      def_zh: '固态墨块，上有年号、斋号等铭文，本身即为收藏对象。', def_en: 'A solid ink cake, often inscribed with a reign mark or studio name, collected in its own right.' },
+    { id: 'zhenzhi', zh: '镇纸', en: 'paperweight', py: 'zhèn zhǐ', cat: 'qiju',
+      def_zh: '压住纸面使其不动的重物，多为铜、石、木制。', def_en: 'A weight holding the paper still, usually of bronze, stone or wood.' },
+    { id: 'shuiyu', zh: '水盂', en: 'water vessel', py: 'shuǐ yú', cat: 'qiju',
+      def_zh: '盛水以供研墨与调墨的小器。', def_en: 'A small vessel of water for grinding and diluting ink.' },
+    { id: 'bijiashan', zh: '笔架', en: 'brush rest', py: 'bǐ jià', cat: 'qiju',
+      def_zh: '搁笔之器，防墨污桌面，形制多作山形。', def_en: 'A rest for the brush, keeping ink off the desk; often shaped as a mountain range.' },
+
+    /* ---------------- 品评与著录 · Criticism & records ---------------- */
+    { id: 'shupu', zh: '书谱', en: 'Treatise on Calligraphy', py: 'shū pǔ', cat: 'pinglun',
+      def_zh: '唐孙过庭所撰书论名篇（墨迹本存），系统论述书体、笔法与学书阶段，是中国书论的高峰。', def_en: 'Sun Guoting’s Tang treatise, extant in his own hand: a systematic account of scripts, brushwork and stages of study; a summit of Chinese calligraphy theory.', src: '孙过庭《书谱》' },
+    { id: 'bizhentu', zh: '笔阵图', en: 'Battle Array of the Brush', py: 'bǐ zhèn tú', cat: 'pinglun',
+      def_zh: '传卫夫人所撰，以军事比喻点画形态（如"横如千里阵云"），是中国最早以比喻论笔法的文献之一。', def_en: 'Attributed to Lady Wei: stroke forms described through military metaphor ("a horizontal like a thousand li of arrayed cloud"), among the earliest metaphorical writing on brushwork.', src: '卫夫人《笔阵图》' },
+    { id: 'shenpin', zh: '神品', en: 'divine grade', py: 'shén pǐn', cat: 'pinglun',
+      def_zh: '传统品评的最高等级，出于自然、不可学而至。', def_en: 'The highest traditional grade: arising from nature, unattainable by effort.' },
+    { id: 'miaopin', zh: '妙品', en: 'marvellous grade', py: 'miào pǐn', cat: 'pinglun',
+      def_zh: '次于神品，笔意精妙而可学。', def_en: 'Below the divine: exquisite in conception and reachable by study.' },
+    { id: 'nengpin', zh: '能品', en: 'competent grade', py: 'néng pǐn', cat: 'pinglun',
+      def_zh: '再次一等，形似而法度具，然少神采。', def_en: 'The third grade: likeness and rule achieved, radiance lacking.' },
+    { id: 'yipin', zh: '逸品', en: 'untrammelled grade', py: 'yì pǐn', cat: 'pinglun',
+      def_zh: '不为法度所拘、超出常格的一格，宋以后最受推崇。', def_en: 'A grade beyond rule and norm, most admired from the Song onward.' },
+    { id: 'shuruqiren', zh: '书如其人', en: 'the writing is the person', py: 'shū rú qí rén', cat: 'pinglun',
+      def_zh: '以人品解释书风的传统观念，影响深远亦常被质疑。', def_en: 'The long-standing idea that character explains style: deeply influential and often questioned.' },
+    { id: 'xinzhengzebizheng', zh: '心正则笔正', en: 'a straight heart makes a straight brush', py: 'xīn zhèng zé bǐ zhèng', cat: 'pinglun',
+      def_zh: '柳公权答唐穆宗语，以用笔喻为政，成为书法伦理化的经典表述。', def_en: 'Liu Gongquan’s reply to Emperor Muzong, using the brush as a figure for governance; the classic ethical reading of calligraphy.', src: '《旧唐书·柳公权传》' },
+    { id: 'yizaibixian', zh: '意在笔先', en: 'intent before the brush', py: 'yì zài bǐ xiān', cat: 'pinglun',
+      def_zh: '落笔之前先有完整的意象与布局，故书写是预谋与即兴的合成。', def_en: 'A complete image and layout precede the brush: writing as a compound of plan and improvisation.', src: '王羲之《题卫夫人笔阵图后》' },
+    { id: 'liushu', zh: '六书', en: 'six categories of characters', py: 'liù shū', cat: 'pinglun',
+      def_zh: '汉代总结的汉字构造六类：象形、指事、会意、形声、转注、假借。', def_en: 'The Han classification of character formation: pictograph, indicant, compound ideograph, phono-semantic, mutual gloss, loan.' },
+    { id: 'beitie', zh: '碑帖', en: 'steles and model books', py: 'bēi tiè', cat: 'pinglun',
+      def_zh: '"碑"为刻石，"帖"为摹刻名家墨迹的拓本，二者共同构成书法的经典谱系。', def_en: 'Steles are carved stone; model books are rubbings of traced masterworks. Together they form the classical canon.' },
+    { id: 'taben', zh: '拓本', en: 'rubbing', py: 'tà běn', cat: 'pinglun',
+      def_zh: '纸覆刻石、以墨打拓所得的复制品，能保留刀刻与风化的质感。', def_en: 'An ink impression taken from a carved stone, preserving the feel of chisel and erosion.' },
+    { id: 'linmo', zh: '临摹', en: 'copying', py: 'lín mó', cat: 'pinglun',
+      def_zh: '"临"为对帖而写，"摹"为覆纸描摹，是传统学书的两个基本方法。', def_en: 'Lin is writing while looking at the model; mo is tracing over it: the two basic methods of traditional study.' },
+    { id: 'shuanggou', zh: '双钩', en: 'double outline', py: 'shuāng gōu', cat: 'pinglun',
+      def_zh: '以细线勾出字形轮廓再填墨，是复制与学习墨迹的古老技术。', def_en: 'Outlining a character in fine lines and filling it with ink: an ancient technique of copying and study.' },
+    { id: 'bianwei', zh: '辨伪', en: 'authentication', py: 'biàn wěi', cat: 'pinglun',
+      def_zh: '依据纸墨、笔法、题跋、印章等判断作品真伪的学问。', def_en: 'Judging authenticity from paper, ink, brushwork, colophons and seals.' },
+    { id: 'zhulu', zh: '著录', en: 'catalogue record', py: 'zhù lù', cat: 'pinglun',
+      def_zh: '对作品形制、尺寸、题跋、递藏的记录，是研究传播史的基础材料。', def_en: 'Records of a work’s format, dimensions, colophons and provenance: the groundwork of transmission history.' }
+  ];
+
+  /* 去重断言用：id 唯一、中文名唯一 */
+  const DATA = {
+    VERSION: '1.0.0',
+    COUNT: TERMS.length,
+    CATS: CATS,
+    TERMS: TERMS
+  };
+
+  if (typeof module === 'object' && module.exports) module.exports = DATA;
+  root.MOJI_TERMS = DATA;
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+
+;
+/* ==== data_glyphs.js ==== */
+/* ============================================================================
+   墨迹 · Traces of Ink —— 笔法骨架数据 data_glyphs.js
+   ----------------------------------------------------------------------------
+   内容：永字八法（侧/勒/努/趯/策/掠/啄/磔）的归一化骨架点列 + 相对提按序列。
+   坐标系：归一化单位方格，x∈[0,1] 向右，y∈[0,1] 向下（屏幕坐标）。
+   来源：团队依照历代书论对"永字八法"的形态描述自绘的示意骨架，
+         不使用任何字体文件、碑帖扫描件或第三方矢量素材。
+   结体：八笔的位置与比例按"永"字真实结体对位——点短促居字头正中；勒在上部略上斜，
+         努自勒的交叉处直下；趯在努下端顿笔向左上挑出；策自左下向右上挑起；
+         掠承策的锋尖向左下长撇而出，为八笔中最长的斜笔；啄在右上自勒的右端之下短促
+         撇下，锋尖落到磔的蚕头上；磔自努的中段向右下捺出，末端按笔成捺脚。
+         不摹写任何单字帖，只保证结构关系正确。
+   用途：① 笔法重演模块的时间参数化重建 ② 碑帖廊"同一永字、八碑笔意"的
+         矢量骨架生成。骨架本身不含时间信息，时间由 app.js 依书体特征向量生成。
+   ========================================================================== */
+(function (root) {
+  'use strict';
+
+  /* 每条笔画：
+     id       内部标识
+     ord      永字八法的传统次序
+     drawOrder 拼合"永"字时的书写次序
+     zh / alias / pinyin / en   名称
+     axis     主运笔方向类别（h 横 / v 竖 / curve 斜曲）
+     skeleton 归一化骨架点列 [[x,y], …]
+     press    与 skeleton 等长的相对提按权重（0–1），决定笔道粗细包络
+     head / tail  起笔/收笔的锋型系数（0 尖锋 → 1 藏锋圆厚）
+     gloss_zh / gloss_en  书论释义（据《永字八法》及历代注疏改写）
+     key_zh / key_en      动作要点
+  */
+  const YONG_STROKES = [
+    {
+      id: 'ce', ord: 1, drawOrder: 1, zh: '侧', alias: '点', pinyin: 'cè', en: 'Dot (Side)',
+      axis: 'curve',
+      /* 字头正中偏上的一点：全长仅约 0.088，是"一点"而非一撇 */
+      skeleton: [[0.450, 0.100], [0.461, 0.122], [0.472, 0.144], [0.481, 0.163], [0.488, 0.180]],
+      press: [0.66, 0.94, 1.00, 0.86, 0.52],
+      head: 0.85, tail: 0.90,
+      gloss_zh: '侧锋峻落，如鸟翻然侧下。一点之内已含起、行、收三段，故为八法之首。',
+      gloss_en: 'A slanted landing, like a bird turning to descend. Even a single dot contains entry, travel and retrieval.',
+      key_zh: '逆锋入纸 → 折锋顿挫 → 回锋收束',
+      key_en: 'Concealed entry → compressed pause → returning retrieval'
+    },
+    {
+      id: 'le', ord: 2, drawOrder: 2, zh: '勒', alias: '横', pinyin: 'lè', en: 'Horizontal (Rein)',
+      axis: 'h',
+      /* 上半部的横：逆锋重起，中段稍提，右端顿笔（末点略下沉）；努在其右端穿过 */
+      skeleton: [[0.295, 0.348], [0.350, 0.336], [0.408, 0.324], [0.464, 0.313], [0.516, 0.305], [0.537, 0.310]],
+      press: [0.88, 0.64, 0.52, 0.62, 0.88, 1.00],
+      head: 0.80, tail: 0.75,
+      gloss_zh: '勒者，如勒马之用缰。逆入平出，中段稍提，两端着力，故横不宜平直如尺。',
+      gloss_en: 'Like reining a horse: a concealed entry, a level exit, slightly lifted in the middle, weighted at both ends.',
+      key_zh: '逆锋起笔 → 中锋缓行 → 顿笔回收',
+      key_en: 'Reverse entry → centred slow travel → paused return'
+    },
+    {
+      id: 'nu', ord: 3, drawOrder: 3, zh: '努', alias: '竖', pinyin: 'nǔ', en: 'Vertical (Straight)',
+      axis: 'v',
+      /* 中竖：起于勒的交叉处并略高出勒背，直下至下端蓄势待趯 */
+      skeleton: [[0.463, 0.278], [0.466, 0.367], [0.470, 0.477], [0.473, 0.586], [0.472, 0.687], [0.467, 0.773]],
+      press: [0.90, 0.64, 0.56, 0.58, 0.70, 0.92],
+      head: 0.86, tail: 0.95,
+      gloss_zh: '努者，用力也。竖不可过直，直则无力，须"背"势，中段略含筋力。',
+      gloss_en: 'Strength exerted downward. A vertical must not be dead straight — a slight "back" curve gives it tendon.',
+      key_zh: '藏锋顿起 → 中锋直下 → 垂露或悬针',
+      key_en: 'Concealed compressed entry → centred descent → dew-drop or needle finish'
+    },
+    {
+      id: 'ti', ord: 4, drawOrder: 4, zh: '趯', alias: '钩', pinyin: 'tì', en: 'Hook (Leap)',
+      axis: 'curve',
+      /* 努下端顿笔后向左上挑出：横向跨度约 0.12、纵向约 0.16，与勒同一量级 */
+      skeleton: [[0.470, 0.690], [0.466, 0.762], [0.460, 0.818], [0.444, 0.852], [0.416, 0.852], [0.386, 0.830], [0.350, 0.796]],
+      press: [0.88, 0.94, 1.00, 0.76, 0.52, 0.30, 0.10],
+      head: 0.95, tail: 0.05,
+      gloss_zh: '趯者，如人之趯脚，其势轻疾。钩为竖之余势，须先蓄而后发。',
+      gloss_en: 'Like a foot kicking off: light and quick. The hook is the stored momentum of the vertical, released.',
+      key_zh: '顿笔蓄势 → 折锋转腕 → 出锋轻疾',
+      key_en: 'Compressed pause → wrist turn → light quick exit'
+    },
+    {
+      id: 'ce2', ord: 5, drawOrder: 5, zh: '策', alias: '提', pinyin: 'cè', en: 'Rising (Whip)',
+      axis: 'curve',
+      /* 左下向右上的一挑：重顿起于左下，锋尖送到掠的起笔处，相接成"横撇" */
+      skeleton: [[0.190, 0.530], [0.240, 0.516], [0.292, 0.501], [0.344, 0.483], [0.393, 0.462]],
+      press: [0.94, 0.78, 0.60, 0.38, 0.12],
+      head: 0.92, tail: 0.06,
+      gloss_zh: '策者，如策马之用鞭。仰笔趯锋，用力在发笔，得力在收笔。',
+      gloss_en: 'Like a whip on horseback: an upward stroke, force applied at the start, effect felt at the finish.',
+      key_zh: '重顿起笔 → 提锋上挑 → 出锋爽利',
+      key_en: 'Heavy entry → lifted rising brush → crisp exit'
+    },
+    {
+      id: 'lve', ord: 6, drawOrder: 6, zh: '掠', alias: '长撇', pinyin: 'lüè', en: 'Long Sweep',
+      axis: 'curve',
+      /* 承策的锋尖起笔，向左下长送，直抵左下角——八笔中最长的斜笔（弧长 0.44） */
+      skeleton: [[0.359, 0.451], [0.356, 0.502], [0.344, 0.549], [0.322, 0.594], [0.294, 0.638], [0.262, 0.674], [0.222, 0.712], [0.180, 0.750], [0.144, 0.782], [0.122, 0.808]],
+      press: [0.98, 0.86, 0.72, 0.58, 0.46, 0.36, 0.28, 0.20, 0.13, 0.06],
+      head: 0.94, tail: 0.04,
+      gloss_zh: '掠者，如以手拂物，疾而势长。撇贵在送，不可半途甩出。',
+      gloss_en: 'Like brushing something aside — fast, with a long momentum. A sweep must be "seen off", never flung.',
+      key_zh: '藏锋起笔 → 中锋斜送 → 渐提出锋',
+      key_en: 'Concealed entry → centred diagonal send → gradual lift-off'
+    },
+    {
+      id: 'zhuo', ord: 7, drawOrder: 7, zh: '啄', alias: '短撇', pinyin: 'zhuó', en: 'Short Peck',
+      axis: 'curve',
+      /* 右上短撇：起于勒的右端之下（y 大于勒右端的 y），短促撇下，锋尖落到磔的蚕头上 */
+      skeleton: [[0.652, 0.321], [0.660, 0.358], [0.639, 0.400], [0.608, 0.441], [0.571, 0.472], [0.531, 0.494]],
+      press: [1.00, 0.86, 0.66, 0.44, 0.24, 0.08],
+      head: 0.96, tail: 0.03,
+      gloss_zh: '啄者，如鸟之啄物，锐而且速。短撇之势在准，不在长。',
+      gloss_en: 'Like a bird pecking — sharp and swift. A short peck values precision, not length.',
+      key_zh: '峻落疾行 → 短促有力 → 尖锋离纸',
+      key_en: 'Steep landing → short swift travel → needle exit'
+    },
+    {
+      id: 'zhe', ord: 8, drawOrder: 8, zh: '磔', alias: '捺', pinyin: 'zhé', en: 'Press (Flay)',
+      axis: 'curve',
+      /* 自努的中段轻锋入纸，渐行渐重，末端三点近水平地按出捺脚（一波三折） */
+      skeleton: [[0.533, 0.494], [0.567, 0.531], [0.602, 0.569], [0.638, 0.607], [0.674, 0.643], [0.710, 0.674], [0.745, 0.697], [0.778, 0.708], [0.808, 0.715], [0.838, 0.717]],
+      press: [0.16, 0.34, 0.52, 0.68, 0.82, 0.94, 1.00, 0.98, 0.74, 0.32],
+      head: 0.10, tail: 0.45,
+      gloss_zh: '磔者，裂也。一波三折，起处轻、行处渐重、末处重按而复收，所谓"蚕头燕尾"。',
+      gloss_en: '"To split open": one wave, three folds — light start, growing weight, a final press-and-release (silkworm head, swallow tail).',
+      key_zh: '轻锋入纸 → 渐行渐重 → 顿按出锋',
+      key_en: 'Light entry → steadily increasing weight → pressed release'
+    }
+  ];
+
+  /* 拼合"永"字时各笔画的层级（后写者覆盖先写者），仅用于渲染顺序兜底 */
+  const YONG_COMPOSE = ['ce', 'le', 'nu', 'ti', 'ce2', 'lve', 'zhuo', 'zhe'];
+
+  /* 术语交叉引用：八法与通用术语库的对应 id（供 UI 内部锚点） */
+  const YONG_TO_TERM = {
+    ce: 'yong-ce', le: 'yong-le', nu: 'yong-nu', ti: 'yong-ti',
+    ce2: 'yong-ce2', lve: 'yong-lve', zhuo: 'yong-zhuo', zhe: 'yong-zhe'
+  };
+
+  const DATA = {
+    VERSION: '1.0.0',
+    STROKE_COUNT: YONG_STROKES.length,
+    YONG_STROKES: YONG_STROKES,
+    YONG_COMPOSE: YONG_COMPOSE,
+    YONG_TO_TERM: YONG_TO_TERM,
+    /* 骨架数据性质声明（用于界面与文档一致性） */
+    PROVENANCE: {
+      origin: 'team-drawn',
+      method: '依照《永字八法》及历代注疏的形态描述手工给出点列，逐点标注相对提按权重',
+      noFont: true,
+      noScan: true
+    }
+  };
+
+  if (typeof module === 'object' && module.exports) module.exports = DATA;
+  root.MOJI_GLYPHS = DATA;
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+
+;
+/* ==== data_steles.js ==== */
+/* ============================================================================
+   墨迹 · Traces of Ink —— 书体档案与碑帖数据 data_steles.js
+   ----------------------------------------------------------------------------
+    ① STYLES  八件书体档案 —— 楷 / 行四家（欧 / 颜 / 柳 / 赵）+ 王羲之行书
+       + 隶书三家（曹全碑·秀逸 / 张迁碑·方整 / 石门颂·野逸）——
+       用于"名家比对"的加权余弦相似度匹配、"笔法重演"的时间参数化生成，
+       以及"听笔法"模块里的八体 A/B 对照试听。
+    ② STELES  八件公版古代碑帖 —— 用于"碑帖廊"。
+       全部为唐代及以前（含元代一件，作者卒于 1322 年）公有领域作品；
+       界面中的字形骨架是团队依碑帖笔意自绘的示意骨架，非拓本描摹。
+    ③ 8 体与 8 碑的关系（"自述 = 实现"，改数据前务必先读）——
+       书体档案是"书家 / 碑刻级"的十维笔法档案，① 的 8 档与 ② 的 8 碑
+       一一对应：欧→九成宫、颜→多宝塔、柳→玄秘塔、赵→胆巴、王→兰亭序、
+       曹全碑→曹全碑、张迁碑→张迁碑、石门颂→石门颂。
+       因此 8 件碑帖全部 comparable: true，全部可进入名家比对、笔法重演与
+       A/B 试听；碑帖廊里不再有"仅静态展示"的卡片。
+       styleId 一律不得指向 STYLES 里不存在的 id（悬挂引用）。增删任何一档
+       档案时，必须同步改 ① 本体、② 里对应碑的 styleId / comparable、风格
+       标签、SCOPE_NOTE 与界面提示行、verify.js 与 run_checks.py 里的体数
+       断言，并重跑全部测试（两套脚本都必须 exit 0）。
+       新加的隶书三档（曹全 / 张迁 / 石门）的十维数值与三碑的 feature 档案
+       是同一份数据 —— 依碑刻风格的定性描述设定，非实测拓本统计。
+   ----------------------------------------------------------------------------
+   特征向量十维（与 app.js 的 extractFeatures 输出同名同序）：
+     startAngle     起笔角（度，0–360）
+     entryShape     入锋形态（0 露锋尖入 → 1 藏锋缓起）
+     avgSpeed       行笔速度均值（px/s，按 1000px 见方画布标定）
+     speedVar       速度归一化方差（(σ/μ)²，无量纲）
+     pressRatio     提按比（笔道最宽 / 最窄）
+     turnAngle      转折角均值（度）
+     dwellTotal     驻笔总时长（ms）
+     rhythmEntropy  节奏熵（速度分布归一化香农熵，0–1）
+     midStability   中段稳定性（1 − 中段速度变异系数，0–1）
+     endDirection   收笔方向（度，0–360）
+
+   两条与"量纲"有关的约定（改档案数值前务必先读）：
+     ① avgSpeed 一律是"折算到 1000px 参考画布"的速度。画布短边不是 1000px
+        时，界面按 ×1000 ÷ 画布短边 折算后与之比较；屏幕实测值另行列示，
+        界面单位行与 aria 播报都明确写着"折算到 1000 像素参考画布"。
+     ② pressRatio 是"笔道最宽 / 最窄"的倍数，取值 1–4.2（上界即
+        FEATURE_META.pressRatio.scale）。它有两个来源，同量纲、可直接比：
+          · 有真实压感的设备（数位板 / 支持 force 的触屏）→ 实际笔压；
+          · 无压感设备（鼠标在 Pointer Events 规范里 p 恒为 0.5，普通触屏
+            亦然）→ 以行笔速度为代理："慢则按得重、快则提得轻"本就是提按
+            的可测运动学后果（详见 app.js §2.0 inkProfile）。
+        旧模型 w = 0.34 + 0.92·p 把恒定的 0.5 当成"中等按压"，鼠标上限
+        只有 2.27，2.60–3.40 的档案值永远匹配不到；改为速度代理后，带顿挫
+        的鼠标笔迹可读到 3.0–3.7（实测见 07_技术文档与运行说明）。
+   ========================================================================== */
+(function (root) {
+  'use strict';
+
+  const FEATURE_KEYS = [
+    'startAngle', 'entryShape', 'avgSpeed', 'speedVar', 'pressRatio',
+    'turnAngle', 'dwellTotal', 'rhythmEntropy', 'midStability', 'endDirection'
+  ];
+
+  /* ---------------------------------------------------------------------------
+     FEATURE_META —— 十维特征的量纲、归一化尺度与相似度权重
+       scale = 该维的"满量程"，归一化 x̂ = clamp(x / scale, 0, 1)。
+       pressRatio.scale = 4.2 同时是 app.js 里 PRESS.RATIO_MAX 的值：
+       压力通道满量程（p 从 0 到 1）得 1 + 3.0×1 = 4.0×，速度通道的对数压缩
+       要到 v90/v10 ≈ 96 倍才触到 4.2——即"提按比的上界"全作品只有一处定义。
+       avgSpeed.scale = 900 对应的也是"折算到 1000px 参考画布"的速度。
+     权重 w 的排序理由见 07_技术文档与运行说明/系统架构与关键技术.md §4.2。
+     --------------------------------------------------------------------------- */
+  const FEATURE_META = [
+    { key: 'startAngle',    zh: '起笔角',      en: 'Entry angle',      unit: '°',   scale: 360,  w: 0.6 },
+    { key: 'entryShape',    zh: '入锋形态',    en: 'Entry form',       unit: '',    scale: 1,    w: 1.0 },
+    { key: 'avgSpeed',      zh: '行笔速度均值', en: 'Mean speed',       unit: 'px/s', scale: 900, w: 0.9 },
+    { key: 'speedVar',      zh: '速度方差',    en: 'Speed variance',   unit: '',    scale: 0.35, w: 1.1 },
+    { key: 'pressRatio',    zh: '提按比',      en: 'Press ratio',      unit: '×',   scale: 4.2,  w: 1.2 },
+    { key: 'turnAngle',     zh: '转折角均值',  en: 'Turn angle',       unit: '°',   scale: 90,   w: 1.3 },
+    { key: 'dwellTotal',    zh: '驻笔总时长',  en: 'Dwell time',       unit: 'ms',  scale: 700,  w: 0.8 },
+    { key: 'rhythmEntropy', zh: '节奏熵',      en: 'Rhythm entropy',   unit: '',    scale: 1,    w: 1.1 },
+    { key: 'midStability',  zh: '中段稳定性',  en: 'Mid stability',    unit: '',    scale: 1,    w: 0.9 },
+    { key: 'endDirection',  zh: '收笔方向',    en: 'Exit direction',   unit: '°',   scale: 360,  w: 0.6 }
+  ];
+
+  /* ---------------------------------------------------------------------------
+     八件书体档案
+     ★ 全部 8 档都能参与"名家比对""笔法重演"与"听笔法"的八体 A/B 试听；
+       碑帖廊里的 8 件碑帖与这 8 档一一对应，故 8 件全部 comparable: true，
+       界面上不再有"仅静态展示"的卡片。
+     数值来源（重要，勿删）：
+       · 欧 / 颜 / 柳 / 赵 / 王 五档为团队依各家碑帖笔意标定的示例档案；
+       · 曹全碑 / 张迁碑 / 石门颂 三档隶书档案**依碑刻风格的定性描述设定，
+         非实测拓本统计** —— 数值与下方 STELES 里对应碑帖的 feature 档案
+         逐字段相同（同一份数据只写一次，避免两处漂移）。
+     epithet 是"一句话风格"，用于比对解释与 A/B 试听的引导语。
+     struct 字段为笔法重演的生成参数（不是特征向量的一部分）：
+       weight   笔道基准粗细（相对画布短边的千分比）
+       lift     提按幅度（1 = 几乎不提按，越大粗细变化越剧烈）
+       turnSoft 转折柔度（0 = 方折见棱，1 = 完全圆转）
+       flare    收笔外扩（燕尾 / 波磔 / 出锋的强度）
+       tight    中宫收紧度（越大越内擫）
+       slant    欹侧角（度，正值为右上倾）
+       wave     横画波势（起伏幅度）
+       tempo    行笔基准速度（px/s，与 avgSpeed 对应）
+       swing    速度摆动幅度（决定快慢交替的强度）
+       dwell    驻笔权重（起收处的停顿长度）
+       entry    起笔方式：'square' 方切 | 'round' 藏圆 | 'sharp' 露锋
+     ------------------------------------------------------------------------- */
+  const STYLES = [
+    {
+      id: 'ou', zh: '欧体', en: 'Ou style', calligrapher_zh: '欧阳询', calligrapher_en: 'Ouyang Xun',
+      work_zh: '九成宫醴泉铭', work_en: 'Inscription on the Sweet Spring at Jiucheng Palace', era_zh: '唐 · 贞观六年（632）', script_zh: '楷书',
+      epithet_zh: '险峻峭拔 · 中宫收紧', epithet_en: 'Precipitous and taut, a tight centre',
+      feature: {
+        startAngle: 92, entryShape: 0.16, avgSpeed: 520, speedVar: 0.05, pressRatio: 2.25,
+        turnAngle: 62, dwellTotal: 130, rhythmEntropy: 0.56, midStability: 0.91, endDirection: 22
+      },
+      struct: { weight: 38, lift: 1.35, turnSoft: 0.18, flare: 0.55, tight: 1.25, slant: -3, wave: 0.34, tempo: 520, swing: 0.35, dwell: 0.55, entry: 'square' },
+      note_zh: '起笔多方切，转折见棱，竖画细劲而两端重，故速度方差小、转折角大。',
+      note_en: 'Square-cut entries, angular turns, slender verticals weighted at both ends: low speed variance, large turn angles.'
+    },
+    {
+      id: 'yan', zh: '颜体', en: 'Yan style', calligrapher_zh: '颜真卿', calligrapher_en: 'Yan Zhenqing',
+      work_zh: '多宝塔碑', work_en: 'Duobao Pagoda Stele', era_zh: '唐 · 天宝十一年（752）', script_zh: '楷书',
+      epithet_zh: '宽博厚重 · 蚕头燕尾', epithet_en: 'Broad and weighty, silkworm head and swallow tail',
+      feature: {
+        startAngle: 112, entryShape: 0.58, avgSpeed: 380, speedVar: 0.10, pressRatio: 3.40,
+        turnAngle: 38, dwellTotal: 265, rhythmEntropy: 0.63, midStability: 0.82, endDirection: 106
+      },
+      struct: { weight: 56, lift: 2.10, turnSoft: 0.46, flare: 1.00, tight: 0.78, slant: 2, wave: 0.22, tempo: 380, swing: 0.30, dwell: 1.00, entry: 'round' },
+      note_zh: '藏锋圆起、按笔沉厚，提按幅度大而转折较圆，驻笔明显。',
+      note_en: 'Concealed round entries, heavy pressure, large press variation with rounded turns and marked dwell.'
+    },
+    {
+      id: 'liu', zh: '柳体', en: 'Liu style', calligrapher_zh: '柳公权', calligrapher_en: 'Liu Gongquan',
+      work_zh: '玄秘塔碑', work_en: 'Xuanmi Pagoda Stele', era_zh: '唐 · 会昌元年（841）', script_zh: '楷书',
+      epithet_zh: '骨力峭拔 · 瘦硬通神', epithet_en: 'Bone-force and severity, lean and resilient',
+      feature: {
+        startAngle: 96, entryShape: 0.26, avgSpeed: 615, speedVar: 0.07, pressRatio: 2.80,
+        turnAngle: 70, dwellTotal: 95, rhythmEntropy: 0.50, midStability: 0.93, endDirection: 34
+      },
+      struct: { weight: 34, lift: 1.55, turnSoft: 0.12, flare: 0.70, tight: 1.10, slant: -1, wave: 0.30, tempo: 615, swing: 0.24, dwell: 0.35, entry: 'sharp' },
+      note_zh: '行笔爽利、转折最见骨力，速度均值高而方差小，驻笔极短。',
+      note_en: 'Crisp travel and the most skeletal turns: high mean speed, small variance, minimal dwell.'
+    },
+    {
+      id: 'zhao', zh: '赵体', en: 'Zhao style', calligrapher_zh: '赵孟頫', calligrapher_en: 'Zhao Mengfu',
+      work_zh: '胆巴碑', work_en: 'Danba Stele', era_zh: '元 · 延祐三年（1316）', script_zh: '楷书（行楷）',
+      epithet_zh: '圆润遒媚 · 藏锋流转', epithet_en: 'Round and fluent, concealed and flowing',
+      feature: {
+        startAngle: 68, entryShape: 0.36, avgSpeed: 432, speedVar: 0.13, pressRatio: 1.90,
+        turnAngle: 24, dwellTotal: 182, rhythmEntropy: 0.68, midStability: 0.86, endDirection: 158
+      },
+      struct: { weight: 42, lift: 1.05, turnSoft: 0.86, flare: 0.62, tight: 0.95, slant: 6, wave: 0.26, tempo: 432, swing: 0.42, dwell: 0.62, entry: 'round' },
+      note_zh: '提按幅度最小、转折最圆，速度方差中等而节奏连贯，收笔多回锋。',
+      note_en: 'The least press variation and the roundest turns; moderate speed variance, continuous rhythm, returning exits.'
+    },
+    {
+      id: 'wang', zh: '王羲之行书', en: 'Wang Xizhi (running script)', calligrapher_zh: '王羲之', calligrapher_en: 'Wang Xizhi',
+      work_zh: '兰亭序', work_en: 'Preface to the Orchid Pavilion Poems', era_zh: '东晋 · 永和九年（353）', script_zh: '行书',
+      epithet_zh: '连绵变化 · 侧锋取妍', epithet_en: 'Continuous and various, slanted for beauty',
+      feature: {
+        startAngle: 58, entryShape: 0.46, avgSpeed: 705, speedVar: 0.28, pressRatio: 2.05,
+        turnAngle: 30, dwellTotal: 150, rhythmEntropy: 0.85, midStability: 0.63, endDirection: 214
+      },
+      struct: { weight: 36, lift: 1.30, turnSoft: 0.62, flare: 0.82, tight: 0.88, slant: 9, wave: 0.48, tempo: 705, swing: 0.78, dwell: 0.48, entry: 'sharp' },
+      note_zh: '速度方差与节奏熵最大、中段最不稳定——行书的"连绵"正是以稳定性换连续性的结果。',
+      note_en: 'Largest speed variance and rhythm entropy, least stable middle: the price of running script’s continuity.'
+    },
+    {
+      id: 'caoquan', zh: '曹全碑', en: 'Cao Quan Stele', calligrapher_zh: '佚名（汉碑，无书者署款）', calligrapher_en: 'Anonymous (Han stele)',
+      work_zh: '曹全碑', work_en: 'Cao Quan Stele', era_zh: '东汉 · 中平二年（185）', script_zh: '隶书',
+      epithet_zh: '秀逸圆润 · 蚕头燕尾', epithet_en: 'Refined and rounded, silkworm head and swallow tail',
+      feature: {
+        startAngle: 118, entryShape: 0.62, avgSpeed: 340, speedVar: 0.12, pressRatio: 3.10,
+        turnAngle: 26, dwellTotal: 300, rhythmEntropy: 0.66, midStability: 0.79, endDirection: 128
+      },
+      struct: { weight: 40, lift: 1.85, turnSoft: 0.66, flare: 1.30, tight: 0.70, slant: 0, wave: 0.88, tempo: 340, swing: 0.36, dwell: 0.85, entry: 'round' },
+      note_zh: '依碑刻风格的定性描述设定（非实测拓本统计）：藏锋圆起、波磔分明，横势八体最舒展、燕尾最显，驻笔长达 300 ms。',
+      note_en: 'Set from the stele’s qualitative description (not a rubbing survey): concealed round entries, marked waves, the most expansive horizontals, the strongest swallow tails and a long dwell.'
+    },
+    {
+      id: 'zhangqian', zh: '张迁碑', en: 'Zhang Qian Stele', calligrapher_zh: '佚名（汉碑，无书者署款）', calligrapher_en: 'Anonymous (Han stele)',
+      work_zh: '张迁碑', work_en: 'Zhang Qian Stele', era_zh: '东汉 · 中平三年（186）', script_zh: '隶书',
+      epithet_zh: '方整古拙 · 波磔含蓄', epithet_en: 'Square and archaic, restrained waves',
+      feature: {
+        startAngle: 100, entryShape: 0.50, avgSpeed: 300, speedVar: 0.08, pressRatio: 2.60,
+        turnAngle: 54, dwellTotal: 340, rhythmEntropy: 0.52, midStability: 0.88, endDirection: 74
+      },
+      struct: { weight: 54, lift: 1.40, turnSoft: 0.20, flare: 0.45, tight: 0.86, slant: -2, wave: 0.30, tempo: 300, swing: 0.26, dwell: 1.05, entry: 'square' },
+      note_zh: '依碑刻风格的定性描述设定（非实测拓本统计）：方笔切入、转折最见棱（54°），波磔最含蓄，行笔最沉缓而驻笔最长（340 ms），节奏最均一（熵 0.52）。',
+      note_en: 'Set from the stele’s qualitative description (not a rubbing survey): square entries, the most angular turns (54°), the most restrained waves, the slowest travel with the longest dwell (340 ms) and the most even rhythm (entropy 0.52).'
+    },
+    {
+      id: 'shimen', zh: '石门颂', en: 'Shimen Eulogy', calligrapher_zh: '王升（撰文；无书者署款）', calligrapher_en: 'Wang Sheng (text; calligrapher anonymous)',
+      work_zh: '石门颂', work_en: 'Eulogy of Shimen', era_zh: '东汉 · 建和二年（148）', script_zh: '隶书',
+      epithet_zh: '野逸开张 · 圆劲疏朗', epithet_en: 'Untrammelled and expansive, round-force and spacious',
+      feature: {
+        startAngle: 76, entryShape: 0.40, avgSpeed: 380, speedVar: 0.16, pressRatio: 2.30,
+        turnAngle: 20, dwellTotal: 210, rhythmEntropy: 0.74, midStability: 0.75, endDirection: 176
+      },
+      struct: { weight: 46, lift: 1.25, turnSoft: 0.74, flare: 0.95, tight: 0.60, slant: 4, wave: 0.62, tempo: 380, swing: 0.52, dwell: 0.60, entry: 'round' },
+      note_zh: '依碑刻风格的定性描述设定（非实测拓本统计）：圆起圆转、转折最圆（20°），中宫八体最疏（tight 0.60），速度与节奏起伏最大（方差 0.16 / 熵 0.74）、中段最不稳（0.75）——摩崖"野逸开张"的运动学后果。',
+      note_en: 'Set from the stele’s qualitative description (not a rubbing survey): round entries and the roundest turns (20°), the most open centre (tight 0.60), the widest speed and rhythm range (variance 0.16 / entropy 0.74) and the least steady middle (0.75) — the kinematics of a cliff-face hand.'
+    }
+  ];
+
+  /* ---------------------------------------------------------------------------
+     八件公版碑帖（全部超出著作权保护期）
+     每件给出：书家 / 年代 / 书体 / 风格标签 / 自绘骨架的结构参数 / 十维特征档案
+      comparable：该碑是否参与"名家比对""笔法重演"与"听笔法"的 A/B 试听。
+        true  ⇔ styleId 指向 STYLES 里真实存在的一档。当前 8 件碑帖与 8 档
+                书体档案一一对应，所以**全部为 true**；界面据此打"可比对 ·
+                可重演"徽标（三件隶书碑帖与五件楷 / 行书碑帖同等可比对）。
+        false 只作为将来新增碑帖尚未配档案时的安全分支：styleId 为 null 时
+                界面降级为"仅静态展示"（骨架 / 轮廓 / 十维档案照常可看），
+                并要求该碑带一句 compareNote_zh 说明原因。
+        styleId 一律不得指向 STYLES 里不存在的 id（悬挂引用）。
+     styleLabel_zh / styleLabel_en：只写"风格限定语"（秀逸 / 方整 / 王羲之…），
+       卡片上由 app.js 的 steleScriptLine() 拼成"隶书 · 秀逸"，不要自己再写一遍
+       书体名，否则会出现"隶书 · 隶书（秀逸）"这种重复标签。
+     pendingAsset：留给 Lead 后续替换 AI 影像的位置标记（当前以程序生成的
+     宣纸·墨扩散质感代替；即使该文件缺失，界面完全正常）
+     ------------------------------------------------------------------------- */
+  const STELES = [
+    {
+      id: 'duobao', order: 1,
+      title_zh: '多宝塔碑', title_en: 'Duobao Pagoda Stele', short_zh: '多宝塔',
+      calligrapher_zh: '颜真卿', calligrapher_en: 'Yan Zhenqing',
+      era_zh: '唐 · 天宝十一年（752）', year: 752, script_zh: '楷书', script_en: 'Regular script',
+      styleId: 'yan', comparable: true, styleLabel_zh: '颜体', styleLabel_en: 'Yan',
+      tags_zh: ['宽博', '蚕头燕尾', '藏锋圆起', '横细竖粗'], tags_en: ['broad', 'silkworm head', 'concealed entry', 'thin horizontals'],
+      struct: { weight: 56, lift: 2.10, turnSoft: 0.46, flare: 1.00, tight: 0.78, slant: 2, wave: 0.22, tempo: 380, swing: 0.30, dwell: 1.00, entry: 'round' },
+      feature: { startAngle: 112, entryShape: 0.58, avgSpeed: 380, speedVar: 0.10, pressRatio: 3.40, turnAngle: 38, dwellTotal: 265, rhythmEntropy: 0.63, midStability: 0.82, endDirection: 106 },
+      pendingAsset: 'assets/stele_duobao_ai.jpg',
+      assetNote_zh: '待替换：石碑拓片氛围图（AI 生成，团队自用）',
+      sourceNote_zh: '公有领域 · 唐代碑刻；骨架为团队自绘示意，非拓本描摹'
+    },
+    {
+      id: 'jiuchenggong', order: 2,
+      title_zh: '九成宫醴泉铭', title_en: 'Inscription on the Sweet Spring at Jiucheng Palace', short_zh: '九成宫',
+      calligrapher_zh: '欧阳询', calligrapher_en: 'Ouyang Xun',
+      era_zh: '唐 · 贞观六年（632）', year: 632, script_zh: '楷书', script_en: 'Regular script',
+      styleId: 'ou', comparable: true, styleLabel_zh: '欧体', styleLabel_en: 'Ou',
+      tags_zh: ['险峻', '方笔切入', '中宫收紧', '戈戟森严'], tags_en: ['precipitous', 'square entry', 'tight centre', 'halberd-sharp'],
+      struct: { weight: 38, lift: 1.35, turnSoft: 0.18, flare: 0.55, tight: 1.25, slant: -3, wave: 0.34, tempo: 520, swing: 0.35, dwell: 0.55, entry: 'square' },
+      feature: { startAngle: 92, entryShape: 0.16, avgSpeed: 520, speedVar: 0.05, pressRatio: 2.25, turnAngle: 62, dwellTotal: 130, rhythmEntropy: 0.56, midStability: 0.91, endDirection: 22 },
+      pendingAsset: 'assets/stele_jiuchenggong_ai.jpg',
+      assetNote_zh: '待替换：碑石侧光质感图（AI 生成，团队自用）',
+      sourceNote_zh: '公有领域 · 唐代碑刻；骨架为团队自绘示意，非拓本描摹'
+    },
+    {
+      id: 'xuanmita', order: 3,
+      title_zh: '玄秘塔碑', title_en: 'Xuanmi Pagoda Stele', short_zh: '玄秘塔',
+      calligrapher_zh: '柳公权', calligrapher_en: 'Liu Gongquan',
+      era_zh: '唐 · 会昌元年（841）', year: 841, script_zh: '楷书', script_en: 'Regular script',
+      styleId: 'liu', comparable: true, styleLabel_zh: '柳体', styleLabel_en: 'Liu',
+      tags_zh: ['骨力', '瘦硬', '转折峭拔', '驻笔极短'], tags_en: ['bone-force', 'lean', 'sharp turns', 'brief dwell'],
+      struct: { weight: 34, lift: 1.55, turnSoft: 0.12, flare: 0.70, tight: 1.10, slant: -1, wave: 0.30, tempo: 615, swing: 0.24, dwell: 0.35, entry: 'sharp' },
+      feature: { startAngle: 96, entryShape: 0.26, avgSpeed: 615, speedVar: 0.07, pressRatio: 2.80, turnAngle: 70, dwellTotal: 95, rhythmEntropy: 0.50, midStability: 0.93, endDirection: 34 },
+      pendingAsset: 'assets/stele_xuanmita_ai.jpg',
+      assetNote_zh: '待替换：石纹与刻痕微距图（AI 生成，团队自用）',
+      sourceNote_zh: '公有领域 · 唐代碑刻；骨架为团队自绘示意，非拓本描摹'
+    },
+    {
+      id: 'danba', order: 4,
+      title_zh: '胆巴碑', title_en: 'Danba Stele', short_zh: '胆巴碑',
+      calligrapher_zh: '赵孟頫', calligrapher_en: 'Zhao Mengfu',
+      era_zh: '元 · 延祐三年（1316）', year: 1316, script_zh: '楷书（行楷）', script_en: 'Regular / running script',
+      styleId: 'zhao', comparable: true, styleLabel_zh: '赵体', styleLabel_en: 'Zhao',
+      tags_zh: ['圆润', '遒媚', '藏锋流转', '转折最圆'], tags_en: ['round', 'fluent', 'concealed flow', 'roundest turns'],
+      struct: { weight: 42, lift: 1.05, turnSoft: 0.86, flare: 0.62, tight: 0.95, slant: 6, wave: 0.26, tempo: 432, swing: 0.42, dwell: 0.62, entry: 'round' },
+      feature: { startAngle: 68, entryShape: 0.36, avgSpeed: 432, speedVar: 0.13, pressRatio: 1.90, turnAngle: 24, dwellTotal: 182, rhythmEntropy: 0.68, midStability: 0.86, endDirection: 158 },
+      pendingAsset: 'assets/stele_danba_ai.jpg',
+      assetNote_zh: '待替换：纸墨氛围图（AI 生成，团队自用）',
+      sourceNote_zh: '公有领域 · 元代碑刻（书家卒于 1322 年）；骨架为团队自绘示意'
+    },
+    {
+      id: 'lanting', order: 5,
+      title_zh: '兰亭序', title_en: 'Preface to the Orchid Pavilion Poems', short_zh: '兰亭序',
+      calligrapher_zh: '王羲之', calligrapher_en: 'Wang Xizhi',
+      era_zh: '东晋 · 永和九年（353）', year: 353, script_zh: '行书', script_en: 'Running script',
+      styleId: 'wang', comparable: true, styleLabel_zh: '王羲之', styleLabel_en: 'Wang Xizhi',
+      tags_zh: ['连绵', '变化多端', '侧锋取妍', '节奏最自由'], tags_en: ['continuous', 'various', 'slanted', 'freest rhythm'],
+      struct: { weight: 36, lift: 1.30, turnSoft: 0.62, flare: 0.82, tight: 0.88, slant: 9, wave: 0.48, tempo: 705, swing: 0.78, dwell: 0.48, entry: 'sharp' },
+      feature: { startAngle: 58, entryShape: 0.46, avgSpeed: 705, speedVar: 0.28, pressRatio: 2.05, turnAngle: 30, dwellTotal: 150, rhythmEntropy: 0.85, midStability: 0.63, endDirection: 214 },
+      pendingAsset: 'assets/stele_lanting_ai.jpg',
+      assetNote_zh: '待替换：兰亭水岸水墨氛围图（AI 生成，团队自用）',
+      sourceNote_zh: '公有领域 · 东晋（书家卒于 361 年）；现存皆为摹本，本作仅取笔意'
+    },
+    {
+      id: 'caoquan', order: 6,
+      title_zh: '曹全碑', title_en: 'Cao Quan Stele', short_zh: '曹全',
+      calligrapher_zh: '佚名（汉碑，无书者署款）', calligrapher_en: 'Anonymous (Han stele)',
+      era_zh: '东汉 · 中平二年（185）', year: 185, script_zh: '隶书', script_en: 'Clerical script',
+      styleId: 'caoquan', comparable: true, styleLabel_zh: '秀逸', styleLabel_en: 'Refined',
+      tags_zh: ['蚕头燕尾', '波磔分明', '横势舒展'], tags_en: ['silkworm head', 'clear waves', 'expansive horizontals'],
+      struct: { weight: 40, lift: 1.85, turnSoft: 0.66, flare: 1.30, tight: 0.70, slant: 0, wave: 0.88, tempo: 340, swing: 0.36, dwell: 0.85, entry: 'round' },
+      feature: { startAngle: 118, entryShape: 0.62, avgSpeed: 340, speedVar: 0.12, pressRatio: 3.10, turnAngle: 26, dwellTotal: 300, rhythmEntropy: 0.66, midStability: 0.79, endDirection: 128 },
+      pendingAsset: 'assets/stele_caoquan_ai.jpg',
+      assetNote_zh: '待替换：汉碑拓片质感图（AI 生成，团队自用）',
+      sourceNote_zh: '公有领域 · 东汉碑刻；骨架为团队自绘示意，非拓本描摹'
+    },
+    {
+      id: 'zhangqian', order: 7,
+      title_zh: '张迁碑', title_en: 'Zhang Qian Stele', short_zh: '张迁',
+      calligrapher_zh: '佚名（汉碑，无书者署款）', calligrapher_en: 'Anonymous (Han stele)',
+      era_zh: '东汉 · 中平三年（186）', year: 186, script_zh: '隶书', script_en: 'Clerical script',
+      styleId: 'zhangqian', comparable: true, styleLabel_zh: '方整', styleLabel_en: 'Square',
+      tags_zh: ['拙厚', '波磔含蓄', '结体方峻'], tags_en: ['blunt and thick', 'restrained waves', 'square structure'],
+      struct: { weight: 54, lift: 1.40, turnSoft: 0.20, flare: 0.45, tight: 0.86, slant: -2, wave: 0.30, tempo: 300, swing: 0.26, dwell: 1.05, entry: 'square' },
+      feature: { startAngle: 100, entryShape: 0.50, avgSpeed: 300, speedVar: 0.08, pressRatio: 2.60, turnAngle: 54, dwellTotal: 340, rhythmEntropy: 0.52, midStability: 0.88, endDirection: 74 },
+      pendingAsset: 'assets/stele_zhangqian_ai.jpg',
+      assetNote_zh: '待替换：碑石粗粝质感图（AI 生成，团队自用）',
+      sourceNote_zh: '公有领域 · 东汉碑刻；骨架为团队自绘示意，非拓本描摹'
+    },
+    {
+      id: 'shimen', order: 8,
+      title_zh: '石门颂', title_en: 'Eulogy of Shimen', short_zh: '石门颂',
+      calligrapher_zh: '王升（撰文；无书者署款）', calligrapher_en: 'Wang Sheng (text; calligrapher anonymous)',
+      era_zh: '东汉 · 建和二年（148）', year: 148, script_zh: '隶书', script_en: 'Clerical script',
+      styleId: 'shimen', comparable: true, styleLabel_zh: '野逸', styleLabel_en: 'Untrammelled',
+      tags_zh: ['圆劲', '疏朗开阔', '笔势纵放'], tags_en: ['round-force', 'spacious', 'released momentum'],
+      struct: { weight: 46, lift: 1.25, turnSoft: 0.74, flare: 0.95, tight: 0.60, slant: 4, wave: 0.62, tempo: 380, swing: 0.52, dwell: 0.60, entry: 'round' },
+      feature: { startAngle: 76, entryShape: 0.40, avgSpeed: 380, speedVar: 0.16, pressRatio: 2.30, turnAngle: 20, dwellTotal: 210, rhythmEntropy: 0.74, midStability: 0.75, endDirection: 176 },
+      pendingAsset: 'assets/stele_shimen_ai.jpg',
+      assetNote_zh: '待替换：摩崖石刻氛围图（AI 生成，团队自用）',
+      sourceNote_zh: '公有领域 · 东汉摩崖石刻；骨架为团队自绘示意，非拓本描摹'
+    }
+  ];
+
+  const DATA = {
+    VERSION: '1.1.0',
+    FEATURE_KEYS: FEATURE_KEYS,
+    FEATURE_META: FEATURE_META,
+    STYLE_COUNT: STYLES.length,
+    STELE_COUNT: STELES.length,
+    /* 可参与"名家比对 / 笔法重演"的碑帖数（= comparable 为 true 的件数） */
+    COMPARABLE_COUNT: STELES.filter(function (s) { return s.comparable === true; }).length,
+    STYLES: STYLES,
+    STELES: STELES,
+    /* 匹配措辞约束（作品与文档一致遵守：只作教学性"更接近"，不作鉴定） */
+    DISCLAIMER_zh: '本比对是对十维笔法特征的加权余弦相似度排序，属教学示意，不构成书家或年代鉴定。',
+    DISCLAIMER_en: 'This comparison ranks weighted cosine similarity over ten brushwork features. It is pedagogical, not an attribution or a dating.',
+    /* 碑帖廊范围说明（界面与文档共用同一口径）：8 碑结构可比 + 8 档案可参与比对 */
+    SCOPE_NOTE_zh: '碑帖廊展示 8 件公版碑帖，全部有对应书体档案：8 件的结构可以直接横向比较，8 档档案也全部可参与名家比对与笔法重演——三件隶书碑帖（曹全碑 · 秀逸 / 张迁碑 · 方整 / 石门颂 · 野逸）各有独立档案，与五件楷 / 行书碑帖同等可比对。',
+    SCOPE_NOTE_en: 'The gallery holds eight public-domain steles, every one of them backed by a style profile: the structure of all eight is directly comparable, and all eight profiles take part in style matching and brushwork replay — the three clerical steles (Cao Quan · refined, Zhang Qian · square, Shimen · untrammelled) now have profiles of their own and are as comparable as the five regular / running-script ones.',
+    /* 档案数值来源口径（隶书三档的依据，界面、文档与 A/B 试听共用同一句话） */
+    BASIS_NOTE_zh: '八档书体档案中，欧 / 颜 / 柳 / 赵 / 王五档是团队依各家碑帖笔意标定的示例档案；曹全碑 / 张迁碑 / 石门颂三档隶书档案依碑刻风格的定性描述（秀逸 / 方整 / 野逸）设定，非实测拓本统计，数值与对应碑帖的十维特征档案逐字段相同。',
+    BASIS_NOTE_en: 'Among the eight profiles, the five for Ou, Yan, Liu, Zhao and Wang are exemplar profiles calibrated by the team from each master’s manner; the three clerical profiles (Cao Quan, Zhang Qian, Shimen) are set from the qualitative description of each stele (refined / square / untrammelled), not from a statistical survey of rubbings, and match the corresponding stele’s ten-feature profile field by field.'
+  };
+
+  if (typeof module === 'object' && module.exports) module.exports = DATA;
+  root.MOJI_STELES = DATA;
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+
+;
+/* ==== app.js ==== */
 /* ============================================================================
    墨迹 · Traces of Ink —— app.js
    中国书法笔法的时间性数字化与跨模态转译
