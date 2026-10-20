@@ -3389,6 +3389,167 @@ if (typeof document !== 'undefined') {
   } else {
     boot();
   }
+
+  /* ---------- 页面内算法自检（浏览器侧）----------
+     把 Node 自检用的同一组纯函数挂到 window.LOOM_API，并提供“运行自检”按钮逻辑。
+     仅暴露已用于测试的纯函数，不改变任何算法或渲染行为。 */
+  window.LOOM_API = {
+    COLOR_KEYS: COLOR_KEYS, COLOR_META: COLOR_META,
+    STRUCTURES: STRUCTURES, STRUCTURE_ORDER: STRUCTURE_ORDER,
+    blankDesign: blankDesign, designFromRows: designFromRows, designToRows: designToRows,
+    normalizeDesign: normalizeDesign, resizeDesign: resizeDesign,
+    frameLift: frameLift, groundLift: groundLift,
+    compileToPattern: compileToPattern, decodePattern: decodePattern,
+    designToBits: designToBits, bitsToDesign: bitsToDesign, checksum: checksum,
+    weaveSimulate: weaveSimulate, loomTiming: loomTiming,
+    MODALITIES: MODALITIES, modalityById: modalityById, identityBits: identityBits,
+    toCard: toCard, fromCard: fromCard, toTape: toTape, fromTape: fromTape,
+    tapeLayout: tapeLayout, tapeRuns: tapeRuns,
+    toBinary: toBinary, fromBinary: fromBinary, toPixels: toPixels, fromPixels: fromPixels,
+    huabenRows: huabenRows, timingRows: timingRows, toCSV: toCSV, toMarkdown: toMarkdown
+  };
+
+
+    window.loomSelfCheckRun = function () {
+      var A = window.LOOM_API, out = [];
+      var ok = function (cond, name, detail) {
+        out.push({ ok: !!cond, name: name, detail: detail || '' });
+      };
+      var eqRows = function (x, y) { return JSON.stringify(x) === JSON.stringify(y); };
+
+      /* 1 · 数据结构 */
+      ok(A.STRUCTURE_ORDER.length === 3, '地组织类型数 = 3', '实际 ' + A.STRUCTURE_ORDER.length);
+      var PERIOD = { plain: 2, twill: 3, satin5: 5 }, periodsOk = true, p;
+      for (p = 0; p < A.STRUCTURE_ORDER.length; p++) {
+        if (A.STRUCTURES[A.STRUCTURE_ORDER[p]].period !== PERIOD[A.STRUCTURE_ORDER[p]]) periodsOk = false;
+      }
+      ok(periodsOk, '平纹/斜纹/五枚缎 period = 2 / 3 / 5');
+
+      var b8 = A.blankDesign(8), b16 = A.blankDesign(16);
+      ok(b8.w === 8 && b8.h === 8, 'blankDesign(8) 为 8 × 8', b8.w + '×' + b8.h);
+      ok(b16.w === 16 && b16.h === 16, 'blankDesign(16) 为 16 × 16', b16.w + '×' + b16.h);
+
+      /* 2 · 往返一致性：纹样 ⇄ 行字符 ⇄ 花本 ⇄ 位串 */
+      var rows = A.designToRows(b8);
+      ok(eqRows(A.designToRows(A.designFromRows(rows)), rows), '纹样 ↔ 行字符 往返一致');
+      var rtOk = true, s, d;
+      for (s = 0; s < 6; s++) {
+        d = (s % 2 === 0) ? A.blankDesign(8) : A.blankDesign(16);
+        /* 造一点非空内容：按位置写色块，保证可逆性检验有实质 */
+        var colors = A.COLOR_KEYS.length, i, j;
+        for (i = 0; i < d.h; i++) {
+          for (j = 0; j < d.w; j++) {
+            if ((i + j + s) % 3 === 0) d.cells[i][j] = A.COLOR_KEYS[(i * 7 + j * 3 + s) % colors];
+            else d.cells[i][j] = null;
+          }
+        }
+        var want = A.designToRows(A.normalizeDesign(d));
+        var got = A.designToRows(A.decodePattern(A.compileToPattern(d)));
+        if (!eqRows(want, got)) rtOk = false;
+      }
+      ok(rtOk, 'compileToPattern → decodePattern 往返一致（6 个样本）');
+
+      /* 3 · 花本结构自洽 */
+      var p0 = A.compileToPattern(A.designFromRows(rows));
+      var liftOk = true, iff = true, k;
+      for (k = 0; k < p0.h; k++) {
+        if (!/^[01]+$/.test(p0.lift[k]) || p0.lift[k].length !== p0.w) liftOk = false;
+        for (var m = 0; m < p0.w; m++) {
+          if ((p0.lift[k].charAt(m) === '1') !== (p0.color[k][m] > 0)) iff = false;
+        }
+      }
+      ok(liftOk, '花本 lift 为 h 行 × w 列纯 0/1 串');
+      ok(iff, 'lift="1" 与 color>0 严格等价');
+
+      /* 4 · 校验和 */
+      ok(A.checksum(A.compileToPattern(b8)) === A.checksum(A.compileToPattern(b8)),
+        '校验和确定性（同输入同输出）');
+      ok(A.checksum(A.compileToPattern(b8)) !== A.checksum(A.compileToPattern(b16)),
+        '校验和区分性（不同输入不同输出）');
+
+      /* 5 · 位串 ⇄ 花本 ⇄ 纸带 / 二进制 */
+      var bitsA = A.designToBits(A.designFromRows(rows));
+      ok(eqRows(A.designToRows(A.bitsToDesign(bitsA)), rows), '位串 designToBits → bitsToDesign 往返一致');
+      ok(eqRows(A.fromTape(A.toTape(bitsA)).rows, bitsA.rows), '纸带 toTape → fromTape 逐行一致');
+      ok(eqRows(A.fromBinary(A.toBinary(bitsA, 4)).rows, bitsA.rows), '二进制 toBinary → fromBinary 逐行一致');
+
+      /* 6 · 组织循环周期 */
+      var perOk = true, perGroundOk = true, st, n2;
+      for (n2 = 0; n2 < A.STRUCTURE_ORDER.length; n2++) {
+        st = A.STRUCTURE_ORDER[n2];
+        var P = PERIOD[st];
+        for (var q = 0; q < 24 && perOk; q++) {
+          for (var f = 0; f < 8; f++) {
+            if (A.frameLift(st, q + P, f) !== A.frameLift(st, q, f)) { perOk = false; break; }
+          }
+        }
+        for (var q2 = 0; q2 < 16 && perGroundOk; q2++) {
+          for (var j2 = 0; j2 < 16; j2++) {
+            if (A.groundLift(st, q2 + P, j2) !== A.groundLift(st, q2, j2)) { perGroundOk = false; break; }
+          }
+        }
+      }
+      ok(perOk, 'frameLift 纬向周期 = period（三种地组织）');
+      ok(perGroundOk, 'groundLift 纬向周期 = period（三种地组织）');
+
+      /* 7 · 交织模拟自洽 */
+      var pat16 = A.compileToPattern(A.designFromRows(rows));
+      var wv = A.weaveSimulate(pat16, 'satin5');
+      ok(wv.stats.warpFace + wv.stats.weftFace === wv.stats.total, '经浮 + 纬浮 = 总格数',
+        wv.stats.warpFace + '+' + wv.stats.weftFace + '=' + wv.stats.total);
+      var flowerOk = true, faceOk = true;
+      for (var fi = 0; fi < pat16.h && flowerOk; fi++) {
+        for (var fj = 0; fj < pat16.w; fj++) {
+          var isF = pat16.lift[fi].charAt(fj) === '1';
+          var c = wv.cells[fi][fj];
+          if (c.flower !== isF) { flowerOk = false; break; }
+          if (isF && c.face !== 'weft') { faceOk = false; break; }
+        }
+      }
+      ok(flowerOk, 'weaveSimulate：flower 标记与花本逐位一致');
+      ok(faceOk, 'weaveSimulate：花部一律纬浮（face = weft）');
+      return out;
+    };
+
+    (function bindLoomSelfCheck() {
+      function run() {
+        var st = document.getElementById('loomSelfCheckStat');
+        var list = document.getElementById('loomSelfCheckList');
+        if (!st || !list) return;
+        var LZ = (document.documentElement.lang || 'zh').indexOf('zh') === 0;
+        st.textContent = LZ ? '正在复算…' : 'running…';
+        var res;
+        try { res = window.loomSelfCheckRun(); }
+        catch (err) { st.textContent = (LZ ? '自检异常：' : 'self-check error: ') + (err && err.message ? err.message : err); return; }
+        var pass = 0, fails = [], frag = document.createDocumentFragment();
+        res.forEach(function (r) {
+          if (r.ok) { pass++; } else { fails.push(r.name); }
+          var li = document.createElement('li');
+          li.className = r.ok ? 'pass' : 'fail';
+          var b = document.createElement('b');
+          b.textContent = r.ok ? 'PASS' : 'FAIL';
+          li.appendChild(b);
+          li.appendChild(document.createTextNode(' ' + r.name));
+          if (r.detail) {
+            var sp = document.createElement('span');
+            sp.className = 'v';
+            sp.textContent = r.detail;
+            li.appendChild(sp);
+          }
+          frag.appendChild(li);
+        });
+        list.textContent = '';
+        list.appendChild(frag);
+        st.textContent = pass + ' / ' + res.length + (LZ ? ' 条通过' : ' passed') +
+          (fails.length ? (LZ ? '；未通过：' : '; failed: ') + fails.join('、') : (LZ ? '；全部通过' : '; all passed'));
+      }
+      function bind() {
+        var btn = document.getElementById('loomSelfCheckRun');
+        if (btn && !btn.__scBound) { btn.__scBound = true; btn.addEventListener('click', run); }
+      }
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind);
+      else bind();
+    })();
 }
 
 /* ---------- Node 自检导出 ---------- */

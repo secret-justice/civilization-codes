@@ -968,6 +968,17 @@ html.reduce-motion *::after {
   .panel, .fv-cell, .tm-item { border-color: var(--ink-500); }
 }
 
+/* 页面内算法自检（深色主题，对比度 ≥ 4.5:1） */
+.panel.selfcheck { margin-top: 22px; }
+.panel.selfcheck .sc-row { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin-top: 12px; }
+.selfcheck-list { list-style: none; margin: 12px 0 0; padding: 0; columns: 2; column-gap: 30px; }
+.selfcheck-list li { break-inside: avoid; font-size: 12.5px; line-height: 1.95; font-family: ui-monospace, Menlo, Consolas, monospace; color: #c9d2d6; }
+.selfcheck-list li b { font-family: "Microsoft YaHei", system-ui, sans-serif; letter-spacing: .06em; }
+.selfcheck-list li.pass b { color: #7fd0a0; }
+.selfcheck-list li.fail b { color: #ff9e8c; }
+.selfcheck-list li .v { color: #a8b0b4; margin-left: 6px; }
+@media (max-width: 760px) { .selfcheck-list { columns: 1; } }
+
 </style>
 </head>
 <body>
@@ -1357,6 +1368,16 @@ html.reduce-motion *::after {
       <h3 data-i18n="te_verify">可验证性</h3>
       <ul class="bullets" id="teVerify"></ul>
     </div>
+  </div>
+
+  <div class="panel selfcheck" id="loomSelfCheck">
+    <h3 data-i18n="sc_title">算法自检（就在这一页里跑）</h3>
+    <p class="hint" data-i18n="sc_desc">下面这组断言用与 <code>test/verify.js</code> 同一批纯函数、同一组解析预期：往返一致性（纹样 ⇄ 花本 ⇄ 位串 ⇄ 纸带/二进制）、组织循环周期（平纹 2 / 斜纹 3 / 五枚缎 5）、校验和确定性与区分性、交织统计自洽。点一下即可当场复算。</p>
+    <div class="btn-row sc-row">
+      <button class="btn btn-sm btn-gold" id="loomSelfCheckRun" type="button" data-i18n="sc_run">运行自检（18 条）</button>
+      <p class="live" id="loomSelfCheckStat" role="status" aria-live="polite"></p>
+    </div>
+    <ul class="selfcheck-list" id="loomSelfCheckList"></ul>
   </div>
 </section>
 
