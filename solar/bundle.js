@@ -2374,7 +2374,12 @@
       sunBelowNote: '此刻太阳在地平线下（高度角为负值），竖表不投影，所以没有影长可测；把「真太阳时」拖到日出与日落之间，影子就会出现。',
       obsSample: '当前示例',
       yearMax: '当年最长（冬至）', yearMin: '当年最短（夏至）', atNoon: '正午',
-      termLongitude: '太阳黄经', bjTime: '北京时间 (UTC+8)', utcTime: 'UTC',
+      termLongitude: '太阳黄经',
+      verifyT: '《官方时刻复核》',
+      verifyD: '用香港天文台 2024–2027 年 96 条官方节气时刻，逐条比对本页的实时计算；误差表可下载。',
+      verifyRun: '运行复核（96 条）', verifyCsv: '下载误差表 CSV',
+      verifyTableTitle: '逐条误差表（96 条）',
+      vYear: '年份', vTerm: '节气', vOfficial: '官方（HKO）', vComputed: '本页实时计算', vDiff: '误差（分钟）', bjTime: '北京时间 (UTC+8)', utcTime: 'UTC',
       directLat: '太阳直射纬度', beijingNoonShadow: '北京正午影长（表高 2 m）',
       pentadsTitle: '三候', plantsFW: '花信风', plantsSeasonal: '时令草木',
       farmTitle: '农事要点', selTerm: '点选任一节气', ringHint: '黄道 360° 等分 24 格；点击扇区查看该节气详情。',
@@ -2465,7 +2470,12 @@
       sunBelowNote: 'At this instant the Sun is below the horizon (negative altitude), so the gnomon casts no shadow and there is no measurable length. Drag “true solar time” between sunrise and sunset and the shadow reappears.',
       obsSample: 'Current sample',
       yearMax: 'Year maximum (winter solstice)', yearMin: 'Year minimum (summer solstice)', atNoon: 'noon',
-      termLongitude: 'Solar longitude', bjTime: 'Beijing time (UTC+8)', utcTime: 'UTC',
+      termLongitude: 'Solar longitude',
+      verifyT: 'Official-instant check',
+      verifyD: 'Compare 96 official solar-term instants (HKO, 2024–2027) against this page\u2019s live computation, term by term; the error table can be downloaded.',
+      verifyRun: 'Run the check (96 instants)', verifyCsv: 'Download error table (CSV)',
+      verifyTableTitle: 'Term-by-term error table (96 instants)',
+      vYear: 'Year', vTerm: 'Term', vOfficial: 'Official (HKO)', vComputed: 'Computed here', vDiff: 'Error (min)', bjTime: 'Beijing time (UTC+8)', utcTime: 'UTC',
       directLat: 'Subsolar latitude', beijingNoonShadow: 'Noon shadow in Beijing (post 2 m)',
       pentadsTitle: 'Three pentads', plantsFW: 'Flower-wind letters', plantsSeasonal: 'Plants of the season',
       farmTitle: 'Farm work', selTerm: 'Select a term', ringHint: 'The 360° ecliptic divided into 24 sectors; click a sector for details.',
@@ -4558,6 +4568,45 @@
       renderExport();
     });
     $('#expTermsCsv').addEventListener('click', () => download(termsCsv(expState.year), `天时-节气时刻表-${expState.year}.csv`));
+  /** 官方对照表**按需加载**：正常渲染路径不读取任何预置节气时刻（作品核心主张） */
+  function ensureRefData(cb) {
+    if (window.RefData && window.RefData.REFERENCE) { cb(true); return; }
+    const sc = document.createElement('script');
+    sc.src = 'data_reference.js';
+    sc.onload = () => setTimeout(() => cb(true), 0);
+    sc.onerror = () => cb(false);
+    document.head.appendChild(sc);
+  }
+
+  function runVerify() {
+    const st = $('#verifyStat');
+    st.textContent = pick('正在加载官方对照表并逐条复核…', 'Loading the official table and checking\u2026');
+    ensureRefData((ok) => {
+      if (!ok) {
+        st.textContent = pick('未能加载官方对照表（data_reference.js）。',
+          'Could not load the reference table (data_reference.js).');
+        return;
+      }
+      const r = verifyOfficial();
+      if (!r || !r.n) {
+        st.textContent = pick('未找到官方对照数据。', 'Reference data not available.');
+        return;
+      }
+      renderVerify(r);
+      st.textContent = pick(
+        `${r.n} 条：平均绝对误差 ${r.mae.toFixed(3)} 分钟，最大 ${r.maxd.toFixed(3)} 分钟，≤1 分钟 ${r.within1}/${r.n} 条`,
+        `${r.n} instants: mean absolute error ${r.mae.toFixed(3)} min, max ${r.maxd.toFixed(3)} min, within 1 min ${r.within1}/${r.n}`);
+    });
+  }
+
+  $('#verifyRun').addEventListener('click', runVerify);
+  $('#verifyCsv').addEventListener('click', () => {
+    ensureRefData((ok) => {
+      const r = ok ? verifyOfficial() : null;
+      if (!r) return;
+      download(verifyCsvText(r), '天时-官方时刻96条误差表.csv');
+    });
+  });
     $('#expTermsMd').addEventListener('click', () => download(termsMd(expState.year), `天时-节气时刻表-${expState.year}.md`));
     $('#expCityCsv').addEventListener('click', () => {
       const c = CITIES.find((x) => x.id === expState.city);
@@ -4653,6 +4702,62 @@
     });
     out.push('');
     return out.join('\n');
+  }
+
+  /** 逐条比对：本页实时计算 vs 香港天文台官方时刻（96 条） */
+  function verifyOfficial() {
+    const R = (window.RefData && window.RefData.REFERENCE) || [];
+    if (!R.length) return null;
+    // 与 test/verify.js 完全同口径：计算值用秒级 JD 换算（不取整），官方值按分钟解析
+    const toMs = (s) => {
+      const m = /^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2})$/.exec(s);
+      return m ? Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]) : null;
+    };
+    const jdToMs = (jd) => {
+      const c = A.jdToCalendar(jd, 8);
+      return Date.UTC(c.year, c.month - 1, c.day, c.hour, c.minute, Math.floor(c.second));
+    };
+    const rows = [];
+    for (let i = 0; i < R.length; i++) {
+      const ref = R[i];
+      const t2 = termByK(ref.year, ref.k);
+      if (!t2) continue;
+      const off = toMs(ref.beijing);
+      if (off === null) continue;
+      const diff = (jdToMs(t2.jdUT) - off) / 60000;
+      rows.push({ year: ref.year, k: ref.k, name: ref.name, nameEn: ref.nameEn,
+        official: ref.beijing, computed: A.formatJD(t2.jdUT, 8), diff: diff });
+    }
+    const abs = rows.map((x) => Math.abs(x.diff));
+    const mae = abs.reduce((s, x) => s + x, 0) / abs.length;
+    const maxd = Math.max.apply(null, abs);
+    const within1 = abs.filter((x) => x <= 1 + 1e-9).length;
+    return { rows: rows, mae: mae, maxd: maxd, within1: within1, n: rows.length };
+  }
+
+  function renderVerify(r) {
+    const panel = $('#verifyPanel');
+    const body = $('#verifyBody');
+    body.innerHTML = r.rows.map((x) => {
+      const sign = x.diff > 0 ? '+' : '';
+      const cls = Math.abs(x.diff) <= 0.5 ? 'ok' : (Math.abs(x.diff) <= 1 ? 'mid' : 'bad');
+      return '<tr><td>' + x.year + '</td><td>' + esc(LANG === 'zh' ? x.name : x.nameEn) + '</td>' +
+        '<td class="mono">' + esc(x.official) + '</td>' +
+        '<td class="mono">' + esc(x.computed) + '</td>' +
+        '<td class="mono ' + cls + '">' + sign + x.diff.toFixed(2) + '</td></tr>';
+    }).join('');
+    panel.hidden = false;
+    if (panel.scrollIntoView) panel.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+
+  function verifyCsvText(r) {
+    const head = [t('vYear'), t('vTerm'), t('vOfficial'), t('vComputed'), t('vDiff')].join(',');
+    const lines = r.rows.map((x) => [x.year, LANG === 'zh' ? x.name : x.nameEn,
+      x.official, x.computed, x.diff.toFixed(2)].join(','));
+    const sum = pick(
+      `# 统计,${r.n} 条,平均绝对误差 ${r.mae.toFixed(3)} 分钟,最大 ${r.maxd.toFixed(3)} 分钟,≤1 分钟 ${r.within1}/${r.n}`,
+      `# Summary,${r.n} instants,mean abs error ${r.mae.toFixed(3)} min,max ${r.maxd.toFixed(3)} min,within 1 min ${r.within1}/${r.n}`);
+    return '\ufeff' + head + '\n' + lines.join('\n') + '\n' + sum + '\n';
   }
 
   function download(text, filename) {

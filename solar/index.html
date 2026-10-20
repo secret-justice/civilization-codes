@@ -690,6 +690,25 @@ body.reduced-motion *, body.reduced-motion *::before, body.reduced-motion *::aft
   overflow-wrap: break-word;
 }
 .pheno-farm b { color: var(--gold-700); font-weight: 500; margin-right: 4px; }
+
+/* 官方时刻复核：96 行误差表 */
+.verify-wrap {
+  max-height: 420px; overflow: auto; margin-top: 10px;
+  border: 1px solid var(--line); border-radius: 6px;
+}
+.verify-wrap:focus-visible { outline: 2px solid var(--gold-600, #c8a35a); outline-offset: 2px; }
+.verify-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.verify-table th, .verify-table td { padding: 6px 10px; text-align: left; border-bottom: 1px solid var(--line); }
+.verify-table thead th {
+  position: sticky; top: 0; background: var(--panel, #0e1418); color: var(--text-3, #969c9e);
+  font-weight: 600; letter-spacing: .04em; z-index: 1;
+}
+.verify-table td.mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.verify-table td.ok { color: #8fd6a8; }
+.verify-table td.mid { color: #d9c07a; }
+.verify-table td.bad { color: #e0917f; }
+.verify-table tbody tr:hover { background: rgba(200, 163, 90, .06); }
+
 </style>
 </head>
 <body>
@@ -998,11 +1017,37 @@ body.reduced-motion *, body.reduced-motion *::before, body.reduced-motion *::aft
         <button class="btn btn-sm" id="expCityMd">Markdown</button>
       </div>
     </div>
+    <div class="panel">
+      <h3 class="panel-title" data-i18n="verifyT">《官方时刻复核》</h3>
+      <p class="hint" data-i18n="verifyD">用香港天文台 2024–2027 年 96 条官方节气时刻，逐条比对本页的实时计算；误差表可下载。</p>
+      <div class="btn-row">
+        <button class="btn btn-sm btn-gold" id="verifyRun" data-i18n="verifyRun">运行复核（96 条）</button>
+        <button class="btn btn-sm" id="verifyCsv" data-i18n="verifyCsv">下载误差表 CSV</button>
+      </div>
+      <p class="live" id="verifyStat" role="status" aria-live="polite"></p>
+    </div>
   </div>
   <div class="panel preview-panel">
     <h3 class="panel-title" data-i18n="expPreview">导出预览</h3>
     <pre class="preview" id="expPreview"></pre>
     <p class="live" id="expStatus" role="status" aria-live="polite"></p>
+  </div>
+  <div class="panel preview-panel" id="verifyPanel" hidden>
+    <h3 class="panel-title" data-i18n="verifyTableTitle">逐条误差表（96 条）</h3>
+    <div class="verify-wrap" id="verifyWrap" tabindex="0" role="region" aria-label="96 条官方时刻与计算值误差表">
+      <table class="verify-table">
+        <thead>
+          <tr>
+            <th scope="col" data-i18n="vYear">年份</th>
+            <th scope="col" data-i18n="vTerm">节气</th>
+            <th scope="col" data-i18n="vOfficial">官方（HKO）</th>
+            <th scope="col" data-i18n="vComputed">本页实时计算</th>
+            <th scope="col" data-i18n="vDiff">误差（分钟）</th>
+          </tr>
+        </thead>
+        <tbody id="verifyBody"></tbody>
+      </table>
+    </div>
   </div>
 </section>
 
