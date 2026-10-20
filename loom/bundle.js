@@ -3192,14 +3192,33 @@ function initCover() {
     draw(0);
   });
 
+  // 性能：静态绸面只在尺寸变化时渲染一次（原实现每帧整幅重绘，是长时运行掉帧的主因）
+  let silk = null, silkW = 0, silkH = 0;
+  function ensureSilk() {
+    if (silk && silkW === w && silkH === h) return;
+    silk = document.createElement('canvas');
+    silk.width = Math.round(w * dpr);
+    silk.height = Math.round(h * dpr);
+    const bx = silk.getContext('2d');
+    bx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    paintSilkTexture(bx, w, h, {step: 6, seed: 11, shuttle: null});
+    silkW = w; silkH = h;
+  }
   function draw(phase) {
     const ctx = cv.getContext('2d');
+    ensureSilk();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    ctx.drawImage(silk, 0, 0);
+    if (S.reduceMotion) return;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    paintSilkTexture(ctx, w, h, {
-      step: 6,
-      seed: 11,
-      shuttle: S.reduceMotion ? null : (Math.sin(phase) * 0.5 + 0.5) * (w + 200) - 100
-    });
+    const sx = (Math.sin(phase) * 0.5 + 0.5) * (w + 200) - 100;
+    const gg = ctx.createLinearGradient(sx - 90, 0, sx + 90, 0);
+    gg.addColorStop(0, 'rgba(184,134,11,0)');
+    gg.addColorStop(0.5, 'rgba(230,194,90,0.16)');
+    gg.addColorStop(1, 'rgba(184,134,11,0)');
+    ctx.fillStyle = gg;
+    ctx.fillRect(sx - 90, 0, 180, h);
   }
 
   let t0 = performance.now();
@@ -3210,6 +3229,16 @@ function initCover() {
   }
   draw(0);
   if (!S.reduceMotion) coverRAF = requestAnimationFrame(loop);
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) {
+      if (coverRAF) { cancelAnimationFrame(coverRAF); coverRAF = null; }
+      if (coverArtRAF) { cancelAnimationFrame(coverArtRAF); coverArtRAF = null; }
+    } else if (!S.reduceMotion) {
+      t0 = performance.now();
+      coverRAF = requestAnimationFrame(loop);
+      loopCoverArt();
+    }
+  });
   if (S.reduceMotion && coverRAF) { cancelAnimationFrame(coverRAF); coverRAF = null; }
 }
 
