@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>天时 · 二十四节气的太阳历法算法与世界时间对话 — The Measure of Heaven</title>
+<meta name="description" content="用真实天文计算（VSOP87D 太阳视黄经）在浏览器里当场算出任意年份二十四节气的精确时刻，拨虚拟圭表看日影，拖地球看直射点，并把这一刻放进世界坐标系。零依赖、离线可运行。">
+<meta name="theme-color" content="#0e1a24">
+<meta property="og:type" content="website">
+<meta property="og:title" content="天时 · The Measure of Heaven">
+<meta property="og:description" content="二十四节气不是老黄历，而是中国人用圭表与日影把太阳一年切成 24 段的精确算法。An interactive observatory that computes the 24 solar terms from apparent solar longitude.">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:locale:alternate" content="en_US">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip-link" href="#observatory" data-i18n="skip">跳到主要内容</a>
+
+<!-- ==================== 导航 ==================== -->
+<header class="nav" id="nav">
+  <div class="nav-brand">
+    <span class="nav-mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="22" height="22"><circle cx="12" cy="12" r="9.2" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="12" cy="12" r="3.4" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M12 2.8v3.2M12 18v3.2M2.8 12h3.2M18 12h3.2" stroke="currentColor" stroke-width="1.2"/></svg>
+    </span>
+    <b data-i18n="brand">天时</b>
+    <small>The Measure of Heaven</small>
+  </div>
+  <nav class="nav-links" aria-label="模块导航">
+    <a href="#observatory" data-i18n="nav1">日影台</a>
+    <a href="#calendar" data-i18n="nav2">节气历</a>
+    <a href="#orbit" data-i18n="nav3">公转</a>
+    <a href="#phenology" data-i18n="nav4">物候</a>
+    <a href="#world" data-i18n="nav5">世界对话</a>
+    <a href="#palette" data-i18n="nav6">节气色</a>
+    <a href="#glossary" data-i18n="nav7">术语库</a>
+    <a href="#teach" data-i18n="nav8">教学包</a>
+    <a href="#credits" data-i18n="nav9">团队</a>
+  </nav>
+  <div class="nav-tools">
+    <button id="motionToggle" class="tool-btn" aria-pressed="true" title="减弱动效 / Reduce motion">
+      <span class="tool-ico" aria-hidden="true">◐</span><span data-i18n="motionOn">动效</span>
+    </button>
+    <div class="lang-switch" role="group" aria-label="Language">
+      <button id="langZh" class="on" aria-pressed="true">中文</button>
+      <button id="langEn" aria-pressed="false">EN</button>
+    </div>
+  </div>
+</header>
+
+<!-- ==================== 0 封面 ==================== -->
+<section id="cover" class="cover">
+  <canvas id="coverCanvas" class="cover-canvas" aria-hidden="true"></canvas>
+  <div class="cover-vignette" aria-hidden="true"></div>
+  <div class="cover-inner">
+    <p class="cover-kicker"><span data-i18n="coverKicker">交互式数字天文台 · 科学计算 + 数据可视化</span></p>
+    <h1 class="cover-title">天　时</h1>
+    <p class="cover-title-en">The Measure of Heaven</p>
+    <p class="cover-sub" data-i18n="coverSub">二十四节气不是老黄历，而是中国人用一根圭表、一道日影，把太阳一年切成 24 段的精确算法。本作品用真实天文计算当场算出任意年份 24 个节气的精确时刻——你可以拨动圭表看影长，拖动地球看太阳直射点，再把这一刻放进世界的坐标系。</p>
+    <!-- 程序生成的日晷（实时：指针指向由当前节气黄经决定） -->
+    <div class="cover-dial-wrap">
+      <svg id="coverDial" class="cover-dial" viewBox="0 0 320 320" role="img"
+           aria-label="程序生成的赤道式日晷：晷针阴影指向由太阳时角决定；无图像时亦完整显示">
+        <g id="coverDialG"></g>
+      </svg>
+      <div class="cover-dial-cap" id="coverDialCap" aria-live="polite"></div>
+    </div>
+    <div class="cover-meta">
+      <span data-i18n="coverMeta">全国大学生数字媒体科技作品及创意竞赛 · 国际专项赛参赛作品 ｜ 2026</span>
+    </div>
+    <div class="cover-cta-row">
+      <a class="btn btn-gold" href="#observatory" data-i18n="enter">进入天文台 · Enter</a>
+      <a class="btn btn-ghost" href="#calendar" data-i18n="seeTerms">直接看今年的节气时刻</a>
+    </div>
+    <p class="cover-foot" data-i18n="coverFoot">零依赖 · 离线可双击打开 · 页面内每个节气时刻都是当场算出来的</p>
+  </div>
+</section>
+
+<!-- ==================== 1 日影台（圭表模拟） ==================== -->
+<section id="observatory" class="sec">
+  <div class="sec-head">
+    <p class="sec-kicker">01 · <span data-i18n="k1">圭表测影</span></p>
+    <h2 class="sec-title" data-i18n="t1">日影台：影子的长度就是太阳的高度</h2>
+    <p class="sec-title-en">The Shadow Terrace — shadow length is the Sun’s altitude made visible</p>
+    <p class="sec-desc" data-i18n="d1">选定纬度与日期，拖动时刻，看竖表投下的影子如何随太阳移动。影长 = 表高 ÷ tan(太阳高度角)；正午影长在冬至最长、夏至最短——这正是古人定节气的原始观测量。</p>
+  </div>
+
+  <div class="grid-obs">
+    <div class="panel">
+      <div class="ctrl">
+        <label class="ctrl-label" for="latSlider"><span data-i18n="lat">观测纬度</span> <output id="latValue">39.9°N</output></label>
+        <input type="range" id="latSlider" min="-66" max="66" step="0.1" value="39.9">
+        <div class="chips" id="latPresets" role="group" aria-label="纬度预设"></div>
+      </div>
+      <div class="ctrl">
+        <label class="ctrl-label" for="dateSlider"><span data-i18n="date">日期</span> <output id="dateValue">2026-06-21</output></label>
+        <input type="range" id="dateSlider" min="1" max="365" step="1" value="172">
+        <div class="chips" id="datePresets" role="group" aria-label="日期预设"></div>
+      </div>
+      <div class="ctrl">
+        <label class="ctrl-label" for="timeSlider"><span data-i18n="time">真太阳时</span> <output id="timeValue">12:00</output></label>
+        <input type="range" id="timeSlider" min="0" max="24" step="0.05" value="12">
+        <div class="hint" data-i18n="timeHint">真太阳时 12:00 = 太阳上中天（当地正午），与钟表时间差即"均时差"。</div>
+      </div>
+      <div class="ctrl">
+        <label class="ctrl-label" for="gnomonSlider"><span data-i18n="gnomon">表高</span> <output id="gnomonValue">2.0 m</output></label>
+        <input type="range" id="gnomonSlider" min="0.5" max="10" step="0.1" value="2">
+        <div class="hint" data-i18n="gnomonHint">影长与表高成正比；古制八尺之表约合今 1.9 m。</div>
+      </div>
+    </div>
+
+    <div class="panel dial-panel">
+      <svg id="dialSvg" class="dial" viewBox="0 0 420 420" role="img"
+           aria-label="地平盘：中心为竖表，虚线为太阳方位，实线为影长方向，长度按影长比例绘制">
+        <g id="dialG"></g>
+      </svg>
+      <p class="fig-cap" data-i18n="dialCap">地平盘俯视：空心圆为太阳方位，实线为影长方向（与太阳方位相差 180°），长度按影长比例缩放。</p>
+    </div>
+
+    <div class="panel readouts" id="obsReadouts">
+      <h3 class="panel-title" data-i18n="obsFigures">实时读数</h3>
+      <dl class="readout-grid" id="obsGrid"></dl>
+      <div class="obs-extra" id="obsExtra"></div>
+    </div>
+  </div>
+  <p class="live" id="obsLive" aria-live="polite"></p>
+</section>
+
+<!-- ==================== 2 节气历 ==================== -->
+<section id="calendar" class="sec">
+  <div class="sec-head">
+    <p class="sec-kicker">02 · <span data-i18n="k2">节气时刻</span></p>
+    <h2 class="sec-title" data-i18n="t2">节气历：24 个时刻，全部当场算出</h2>
+    <p class="sec-title-en">The Solar-Term Almanac — 24 instants, all computed in your browser</p>
+    <p class="sec-desc" data-i18n="d2">每个时刻都是解方程"太阳视黄经 = 15°×k"得到的，精确到分钟；与官方公布值逐条比对的误差表在技术文档中公开。环状视图把黄道 360° 等分为 24 格——这正是节气的几何定义。</p>
+  </div>
+
+  <div class="toolbar">
+    <div class="chips" id="calYears" role="group" aria-label="年份"></div>
+    <div class="seg" id="calView" role="group" aria-label="视图">
+      <button class="on" data-view="list" data-i18n="viewList">列表</button>
+      <button data-view="ring" data-i18n="viewRing">环状</button>
+    </div>
+  </div>
+
+  <div class="grid-cal">
+    <div class="panel cal-main">
+      <div id="calList" class="cal-list"></div>
+      <div id="calRing" class="cal-ring" hidden></div>
+    </div>
+    <aside class="panel cal-detail" id="calDetail"></aside>
+  </div>
+  <p class="live" id="calLive" aria-live="polite"></p>
+</section>
+
+<!-- ==================== 3 地球公转 ==================== -->
+<section id="orbit" class="sec">
+  <div class="sec-head">
+    <p class="sec-kicker">03 · <span data-i18n="k3">黄道与直射点</span></p>
+    <h2 class="sec-title" data-i18n="t3">地球公转：同一个太阳，两条曲线</h2>
+    <p class="sec-title-en">Earth’s Orbit — one Sun, two curves</p>
+    <p class="sec-desc" data-i18n="d3">轨道视图里地球以真实日地距运动（偏心率已放大标注），24 个节气标记按黄经等分而角速度不均；直射点视图给出太阳直射纬度与三条纬线的昼长曲线——它们全部由同一套算法逐日算出。</p>
+  </div>
+
+  <div class="toolbar">
+    <div class="seg" id="orbitView" role="group" aria-label="视图">
+      <button class="on" data-view="orbit" data-i18n="viewOrbit">轨道视图</button>
+      <button data-view="subsolar" data-i18n="viewSubsolar">直射点视图</button>
+    </div>
+    <div class="orbit-play">
+      <button id="orbitPlay" class="btn btn-sm" aria-pressed="false"><span data-i18n="play">播放</span></button>
+      <input type="range" id="orbitSlider" min="1" max="365" step="1" value="172" aria-label="年积日">
+      <output id="orbitDate">2026-06-21</output>
+    </div>
+  </div>
+
+  <div class="grid-orbit">
+    <div class="panel">
+      <canvas id="orbitCanvas" width="960" height="560" role="img"
+              aria-label="地球公转动画：太阳位于椭圆焦点，地球沿轨道运行，24 个节气位置以黄经等分标记"></canvas>
+      <p class="fig-cap" id="orbitCap" data-i18n="orbitCap">轨道视图：日地距变化已放大 12 倍以便观察；标记为 24 个节气位置。</p>
+    </div>
+    <aside class="panel orbit-readouts">
+      <h3 class="panel-title" data-i18n="orbitFigures">当前状态</h3>
+      <dl class="readout-grid" id="orbitGrid"></dl>
+      <div class="orbit-terms" id="orbitTerms"></div>
+    </aside>
+  </div>
+  <p class="live" id="orbitLive" aria-live="polite"></p>
+</section>
+
+<!-- ==================== 4 物候图谱 ==================== -->
+<section id="phenology" class="sec">
+  <div class="sec-head">
+    <p class="sec-kicker">04 · <span data-i18n="k4">三候与花信</span></p>
+    <h2 class="sec-title" data-i18n="t4">物候图谱：24 节气 × 三候 × 花信风</h2>
+    <p class="sec-title-en">The Phenology Atlas — 24 terms × 3 pentads × flower-wind letters</p>
+    <p class="sec-desc" data-i18n="d4">每个节气再分三候，每候一句物候；小寒至谷雨八节气另有"二十四番花信风"，每候一花。插画全部为自绘几何 SVG，不使用任何外部图片。</p>
+  </div>
+  <div class="chips" id="phenoFilters" role="group" aria-label="季节筛选"></div>
+  <div class="pheno-grid" id="phenoGrid"></div>
+  <dialog id="phenoDialog" class="dlg"></dialog>
+</section>
+
+<!-- ==================== 5 世界时间对话 ==================== -->
+<section id="world" class="sec">
+  <div class="sec-head">
+    <p class="sec-kicker">05 · <span data-i18n="k5">同一太阳，多种编码</span></p>
+    <h2 class="sec-title" data-i18n="t5">世界时间对话：一个日期游标，五种坐标系</h2>
+    <p class="sec-title-en">A World Dialogue on Time — one cursor, five frames of reference</p>
+    <p class="sec-desc" data-i18n="d5">拖动游标：中国节气、太阳黄经度数、西方黄道十二宫、太阳直射点与晨昏线、各文明的太阳节点节日同步跳动。文明互鉴不是谁抄谁，而是人类面对同一片天空各自造出的精密答案。</p>
+  </div>
+
+  <div class="toolbar">
+    <div class="chips" id="worldYears" role="group" aria-label="年份"></div>
+    <div class="world-slider">
+      <input type="range" id="worldSlider" min="1" max="365" step="1" value="172" aria-label="日期游标">
+      <output id="worldDate">2026-06-21</output>
+    </div>
+    <div class="chips chips-layer" id="worldLayers" role="group" aria-label="图层"></div>
+  </div>
+
+  <div class="grid-world">
+    <div class="panel map-panel">
+      <svg id="worldMap" class="world-map" viewBox="0 0 1000 520" role="img"
+           aria-label="世界示意图：低精度大陆轮廓与等经纬网格，绘出太阳直射点、晨昏线与各文明太阳节点所在地；非精确地图投影"></svg>
+      <p class="fig-cap" data-i18n="worldCap">低精度自绘大陆轮廓（示意级精度，非测绘投影）+ 等经纬网格：太阳直射点与晨昏线由当日太阳赤经、赤纬实时算出。</p>
+    </div>
+    <aside class="panel world-readouts">
+      <h3 class="panel-title" data-i18n="worldFigures">此刻的太阳</h3>
+      <dl class="readout-grid" id="worldGrid"></dl>
+      <div id="worldNear" class="world-near"></div>
+    </aside>
+  </div>
+
+  <h3 class="sub-title" data-i18n="worldTableTitle">各文明的太阳节点对照</h3>
+  <div class="table-wrap">
+    <table class="tbl" id="worldTable">
+      <thead>
+        <tr>
+          <th data-i18n="thRegion">文明 / 地点</th>
+          <th data-i18n="thFest">节点与节日</th>
+          <th data-i18n="thRule">日期规则</th>
+          <th data-i18n="thThisYear">本年日期</th>
+          <th data-i18n="thState">与游标关系</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <p class="live" id="worldLive" aria-live="polite"></p>
+</section>
+
+<!-- ==================== 6 节气色 ==================== -->
+<section id="palette" class="sec">
+  <div class="sec-head">
+    <p class="sec-kicker">06 · <span data-i18n="k6">节气色</span></p>
+    <h2 class="sec-title" data-i18n="t6">节气色：24 个节气的专属配色</h2>
+    <p class="sec-title-en">Colours of the Terms — 24 original OKLCH colours</p>
+    <p class="sec-desc" data-i18n="d6">全部以 OKLCH 定义（L 明度 / C 彩度 / H 色相），页面现场转换为 sRGB 显示；每个色附一句取色依据。点击色卡复制色值。</p>
+  </div>
+  <div class="season-bands" id="seasonBands"></div>
+  <div class="palette-grid" id="paletteGrid"></div>
+  <p class="toast" id="paletteToast" role="status" aria-live="polite"></p>
+</section>
+
+<!-- ==================== 7 术语库 ==================== -->
+<section id="glossary" class="sec">
+  <div class="sec-head">
+    <p class="sec-kicker">07 · <span data-i18n="k7">术语库</span></p>
+    <h2 class="sec-title" data-i18n="t7">双语术语库：把节气还原为可定义的科学</h2>
+    <p class="sec-title-en">A Bilingual Glossary — turning the terms back into science</p>
+    <p class="sec-desc" id="glossaryDesc" data-i18n="d7">从太阳黄经、赤纬、时角到圭表、晷影、三候、数九、入梅出梅，逐条给出中文与英文释义，支持中英文检索与门类筛选。</p>
+  </div>
+  <div class="toolbar">
+    <input type="search" id="termSearch" class="input" data-i18n-ph="searchPh" placeholder="检索：中文 / 英文 / 释义，如 黄经、declination、圭表、solstice…">
+    <span class="count" id="termCount"></span>
+  </div>
+  <div class="chips" id="termCats" role="group" aria-label="术语门类"></div>
+  <div class="term-grid" id="termGrid"></div>
+</section>
+
+<!-- ==================== 8 教学包导出 ==================== -->
+<section id="teach" class="sec">
+  <div class="sec-head">
+    <p class="sec-kicker">08 · <span data-i18n="k8">教学包</span></p>
+    <h2 class="sec-title" data-i18n="t8">教学包导出：把计算变成课堂材料</h2>
+    <p class="sec-title-en">Teaching Pack Export — from computation to classroom</p>
+    <p class="sec-desc" data-i18n="d8">一键导出《节气时刻表》与《指定城市日影表》（CSV / Markdown）。全部在本地生成并下载，不联网、不上传任何数据。</p>
+  </div>
+
+  <div class="grid-teach">
+    <div class="panel">
+      <h3 class="panel-title" data-i18n="expTerms">《节气时刻表》</h3>
+      <div class="ctrl-row">
+        <label for="expYear" data-i18n="year">年份</label>
+        <select id="expYear" class="input input-sm"></select>
+      </div>
+      <p class="hint" data-i18n="expTermsHint">24 行：序号 / 节气 / 太阳黄经 / 北京时间 / UTC / 三候首候。</p>
+      <div class="btn-row">
+        <button class="btn btn-sm btn-gold" id="expTermsCsv">CSV</button>
+        <button class="btn btn-sm" id="expTermsMd">Markdown</button>
+      </div>
+    </div>
+    <div class="panel">
+      <h3 class="panel-title" data-i18n="expCity">《指定城市日影表》</h3>
+      <div class="ctrl-row">
+        <label for="expCity" data-i18n="city">城市</label>
+        <select id="expCity" class="input input-sm"></select>
+      </div>
+      <div class="ctrl-row">
+        <label for="expGnomon" data-i18n="gnomon">表高</label>
+        <input type="number" id="expGnomon" class="input input-sm" value="2" min="0.5" max="10" step="0.1"> <span class="unit">m</span>
+      </div>
+      <p class="hint" data-i18n="expCityHint">24 行：节气 / 日期 / 正午太阳高度角 / 正午影长 / 昼长 / 日出 / 日落。</p>
+      <div class="btn-row">
+        <button class="btn btn-sm btn-gold" id="expCityCsv">CSV</button>
+        <button class="btn btn-sm" id="expCityMd">Markdown</button>
+      </div>
+    </div>
+  </div>
+  <div class="panel preview-panel">
+    <h3 class="panel-title" data-i18n="expPreview">导出预览</h3>
+    <pre class="preview" id="expPreview"></pre>
+    <p class="live" id="expStatus" role="status" aria-live="polite"></p>
+  </div>
+</section>
+
+<!-- ==================== 9 团队 · 制作 · 披露 ==================== -->
+<section id="credits" class="sec">
+  <div class="sec-head">
+    <p class="sec-kicker">09 · <span data-i18n="k9">团队与披露</span></p>
+    <h2 class="sec-title" data-i18n="t9">团队分工、原创界定与 AI 披露</h2>
+    <p class="sec-title-en">Team, original contributions, and AI disclosure</p>
+  </div>
+
+  <div class="grid-credits">
+    <div class="panel">
+      <h3 class="panel-title" data-i18n="crTeam">团队分工</h3>
+      <ul class="ul">
+        <li data-i18n="cr1"><b>天文算法与数值验证</b> — VSOP87D 截断级数接入、节气反解迭代、96 条官方时刻逐条校验</li>
+        <li data-i18n="cr2"><b>数据整理与双语</b> — 七十二候、花信风、141 条术语、12 个文明节点的中英对照撰写</li>
+        <li data-i18n="cr3"><b>交互与可视化</b> — 圭表地平盘、节气环、公转动画、直射点/晨昏线、节气色系统</li>
+        <li data-i18n="cr4"><b>工程与测试</b> — 零依赖打包、Node 自检脚本、Playwright 端到端检查</li>
+        <li data-i18n="cr5"><b>影像与评审材料</b> — 评审视频脚本、AI 影像生成与筛选、说明文档</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3 class="panel-title" data-i18n="crOrigin">原创资产界定</h3>
+      <ul class="ul">
+        <li data-i18n="cr6"><b>算法实现</b>：依据 Bretagnon &amp; Francou (1988, VSOP87) 与 Meeus《Astronomical Algorithms》(1998) 的公开理论<b>自行实现</b>，未复制任何第三方天文库代码。</li>
+        <li data-i18n="cr7"><b>视觉资产</b>：24 幅物候插画、日晷、黄道环、星场、晨昏线、色卡全部为程序生成或自绘 SVG，无任何外部图片与字体文件。</li>
+        <li data-i18n="cr8"><b>文本</b>：术语释义、物候释文、文明对照简介由团队撰写；官方节气时刻表仅作校验基准，不进入运行逻辑。</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3 class="panel-title" data-i18n="crSource">算法与数据来源</h3>
+      <ul class="ul">
+        <li data-i18n="cr9"><b>算法</b>：VSOP87D 地球级数（IMCCE 公开数据文件）、Meeus §22 章动 / §25 太阳位置 / §28 均时差 / §13 地平坐标、Espenak–Meeus ΔT 多项式。</li>
+        <li data-i18n="cr10"><b>基准</b>：香港天文台《二十四節氣的日期及時間資料》2024–2027 共 96 条（上游为英国皇家航海历书局 / 美国海军天文气象台数据），抓取日期 2026-10-18。</li>
+        <li data-i18n="cr11"><b>文献</b>：《逸周书·时训解》《月令七十二候集解》《周礼》等公开古籍；UNESCO 2016 年二十四节气列入人类非遗名录。</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3 class="panel-title" data-i18n="crAI">AI 使用披露</h3>
+      <ul class="ul">
+        <li data-i18n="cr12"><b>AI 辅助范围</b>：代码框架与文案初稿在 AI 辅助下完成，算法实现、数值验证与全部结论由团队成员逐行复核并跑通测试；页面显示的每个节气时刻均由程序实时计算，不存在预置数据。</li>
+        <li data-i18n="cr13"><b>AI 影像</b>：评审视频与氛围图使用远程 GPU 上的视频/图像生成模型制作，逐条在下方清单中披露；网页运行时<b>不依赖</b>这些影像。</li>
+        <li data-i18n="cr14"><b>未经 AI 生成的部分</b>：天文算法、测试脚本、物候插画的几何绘制规则、配色体系与官方数据比对结论。</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 class="sub-title" data-i18n="crPending">AI 影像待补位清单（当前以程序生成的星空与光影替代）</h3>
+  <ul class="asset-list" id="assetList"></ul>
+</section>
+
+<footer class="foot">
+  <div class="foot-inner">
+    <p class="foot-title">天时 · The Measure of Heaven</p>
+    <p data-i18n="footNote">二十四节气的太阳历法算法与世界时间对话 ｜ 全国大学生数字媒体科技作品及创意竞赛 · 国际专项赛参赛作品 ｜ 2026</p>
+    <p class="foot-en">All solar-term instants shown in this page are computed live from apparent solar longitude (VSOP87D truncated series). No solar-term table is embedded in the runtime.</p>
+    <p class="foot-link"><a href="#cover" data-i18n="backTop">回到顶部</a></p>
+  </div>
+</footer>
+
+<script src="astro.js"></script>
+<!-- data_reference.js（96 条官方节气时刻）**刻意不在页面加载**：它只是 test/verify.js 的校验基准，
+     运行时不参与任何计算或显示，作品内不存在预置的节气时刻表。 -->
+<script src="data_terms.js"></script>
+<script src="data_phenology.js"></script>
+<script src="data_world.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>墨迹 · Traces of Ink —— 中国书法笔法的时间性数字化与跨模态转译</title>
+<meta name="description" content="《墨迹》把书法中只在时间里存在的“笔法”还原为可测量、可比较、可重演、可聆听的数据：实时笔迹采样 → 十维笔法特征 → 八书体加权余弦匹配 → Web Audio 实时合成，八体 A/B 对照试听。零依赖、离线可运行。">
+<meta name="theme-color" content="#f4f0e6">
+<meta property="og:title" content="墨迹 · Traces of Ink">
+<meta property="og:description" content="Recovering the time inside a brushstroke — a real-time brushwork analysis and cross-modal translation instrument.">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-lang="zh">
+
+<a class="skip-link" href="#bench"><span class="zh">跳到书写台</span><span class="en">Skip to the writing pad</span></a>
+
+<!-- =================== 顶栏 =================== -->
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-zh">墨迹</span>
+    <span class="brand-en">Traces of Ink</span>
+  </div>
+  <nav class="rail" aria-label="模块导航">
+    <a href="#cover"><span class="zh">封面</span><span class="en">Cover</span></a>
+    <a href="#bench"><span class="zh">书写台</span><span class="en">Pad</span></a>
+    <a href="#deconstruct"><span class="zh">笔法解构</span><span class="en">Analysis</span></a>
+    <a href="#match"><span class="zh">名家比对</span><span class="en">Matching</span></a>
+    <a href="#replay"><span class="zh">笔法重演</span><span class="en">Replay</span></a>
+    <a href="#listen"><span class="zh">听笔法</span><span class="en">Listen</span></a>
+    <a href="#gallery"><span class="zh">碑帖廊</span><span class="en">Steles</span></a>
+    <a href="#terms"><span class="zh">术语库</span><span class="en">Terms</span></a>
+    <a href="#access"><span class="zh">无障碍</span><span class="en">Access</span></a>
+    <a href="#team"><span class="zh">团队</span><span class="en">Team</span></a>
+  </nav>
+  <div class="tools">
+    <button id="motionBtn" class="btn-ghost" type="button" aria-pressed="false"><span class="zh">减弱动效</span><span class="en">Reduce motion</span></button>
+    <button id="langBtn" class="btn-ghost" type="button" aria-label="Switch to English">EN</button>
+  </div>
+</header>
+
+<main>
+
+<!-- =================== 0 · 封面 =================== -->
+<section id="cover" class="cover" aria-labelledby="coverTitle">
+  <canvas id="coverInk" class="cover-canvas" aria-hidden="true"></canvas>
+  <div class="cover-body">
+    <p class="kicker"><span class="zh">全国大学生数字媒体科技作品及创意竞赛 · 国际专项赛 · 数字艺术与视觉设计</span><span class="en">National Student Digital Media Competition · International Track · Digital Art &amp; Visual Design</span></p>
+    <h1 id="coverTitle" class="cover-h1"><span class="zi">墨</span><span class="zi">迹</span></h1>
+    <p class="cover-sub">Traces of Ink — Recovering the Time Inside a Brushstroke</p>
+    <p class="lede">
+      <span class="zh">书法最难的部分不是字形，而是<strong>笔法</strong>——一个只在时间里存在的动作；而我们今天看到的书法，全都是静止的结果。本作品用实时笔迹采样把笔法还原成<strong>可测量、可比较、可重演、可聆听</strong>的数据：你写一笔，系统当场算出速度曲线、提按节奏、转折角与驻笔时长，指出“这一笔更接近颜体的宽厚还是赵体的圆润”，并把笔法映射成程序合成的声音。</span>
+      <span class="en">What is hardest in Chinese calligraphy is not the character but the <strong>brushwork</strong> — an action that exists only in time; and what we see today is always the still result. This work uses real-time ink sampling to recover brushwork as data that can be <strong>measured, compared, replayed and heard</strong>: write one stroke, and the system computes its velocity curve, press rhythm, turning angles and dwell time, tells you whether it is closer to Yan’s breadth or Zhao’s roundness, and maps the brushwork into synthesised sound.</span>
+    </p>
+    <div class="cover-cta">
+      <a class="btn-primary" href="#bench"><span class="zh">进入书写台</span><span class="en">Enter the pad</span></a>
+      <a class="btn-line" href="#match"><span class="zh">直接看比对方法</span><span class="en">How matching works</span></a>
+    </div>
+    <ul class="cover-facts">
+      <li><b>10</b><span class="zh">维笔法特征</span><span class="en">brushwork features</span></li>
+      <li><b id="totalStylesCover">8</b><span class="zh">种书体档案</span><span class="en">style profiles</span></li>
+      <li><b id="totalSteles">8</b><span class="zh">件公版碑帖</span><span class="en">public-domain steles</span></li>
+      <li><b id="totalTerms">153</b><span class="zh">条双语术语</span><span class="en">bilingual terms</span></li>
+      <li><b>0</b><span class="zh">外部依赖</span><span class="en">dependencies</span></li>
+    </ul>
+    <div class="seal" aria-hidden="true">墨</div>
+  </div>
+  <p class="cover-note"><span class="zh">鼠标 / 触屏 / 压感笔均可书写 · 全程离线，双击 index.html 即开</span><span class="en">Mouse, touch or pressure pen · fully offline; just open index.html</span></p>
+</section>
+
+<!-- =================== 1 · 书写台 =================== -->
+<section id="bench" class="sec" aria-labelledby="benchTitle">
+  <header class="sec-head">
+    <p class="kicker">01 · <span class="zh">书写台</span><span class="en">Writing pad</span></p>
+    <h2 id="benchTitle"><span class="zh">写一笔，让笔法显影</span><span class="en">Write one stroke; let the brushwork develop</span></h2>
+    <p class="lede"><span class="zh">宣纸质感由代码生成，不是贴图。笔迹的粗细与飞白随<strong>速度</strong>变化：快则细而见枯笔，慢则粗而墨浓；若使用压感笔，压力也参与笔道宽度，鼠标没有压感时则以速度为<strong>提按的代理</strong>。写完一笔，右侧立刻给出十维特征。</span>
+      <span class="en">The paper grain is generated in code, not an image. Stroke weight and “flying white” follow <strong>velocity</strong>: fast thins the line and dries the hairs, slow thickens it; with a pressure pen, pressure joins in, and a mouse without pressure uses velocity as the <strong>proxy for press</strong>. One finished stroke and the ten features appear on the right.</span></p>
+  </header>
+
+  <div class="bench-grid">
+    <div class="pad-wrap">
+      <canvas id="pad" data-aspect="1.32" tabindex="0" role="application"
+        aria-label="书写画布。可用鼠标、触屏或压感笔书写；也可开启键盘书写模式，用方向键移动笔尖、空格落笔与收笔。">
+      </canvas>
+      <p class="sr-only">这是一块可书写的画布。等价的文字说明：在画布上按住并拖动即可留下笔迹；系统随后在右侧列出这一笔的速度均值、速度方差、提按比、转折角、驻笔时长等十维特征，并以折线图与剖面图呈现。速度均值按 1000 像素参考画布折算；提按比在有真实压感时取自笔压，设备不提供压力时（鼠标压力恒为 0.5）改以行笔速度为代理，慢则按、快则提。若无法使用指针设备，请打开下方的“键盘书写”开关，用方向键移动笔尖、空格落笔与收笔。</p>
+      <div class="pad-hud" id="padHud" aria-hidden="true"></div>
+      <div class="pad-tools">
+        <label class="field" for="brushSize"><span class="zh">笔锋</span><span class="en">Tip</span>
+          <input type="range" id="brushSize" min="6" max="34" step="1" value="18">
+          <output id="brushSizeOut" for="brushSize">18 px</output>
+        </label>
+        <div class="field-inline" id="brushPresets">
+          <button class="chip" type="button" data-size="8"><span class="zh">小楷</span><span class="en">small</span></button>
+          <button class="chip" type="button" data-size="18"><span class="zh">中楷</span><span class="en">medium</span></button>
+          <button class="chip" type="button" data-size="30"><span class="zh">大字</span><span class="en">large</span></button>
+        </div>
+        <button id="gridToggle" class="chip" type="button" aria-pressed="false"><span class="zh">米字格</span><span class="en">Grid</span></button>
+        <button id="undoBtn" class="chip" type="button"><span class="zh">撤销</span><span class="en">Undo</span></button>
+        <button id="clearBtn" class="chip" type="button"><span class="zh">清空</span><span class="en">Clear</span></button>
+        <button id="kbdToggle" class="chip" type="button" aria-pressed="false"><span class="zh">键盘书写</span><span class="en">Keyboard writing</span></button>
+      </div>
+      <p class="hint" id="padHelp"><span class="zh">书写时墨量与飞白由速度实时决定；键盘模式下方向键移动、空格落笔、Esc 取消这一笔。</span>
+        <span class="en">Ink load and flying white follow your speed live. In keyboard mode: arrow keys move, space lifts or lowers the tip, Esc cancels the stroke.</span></p>
+    </div>
+
+    <aside class="analysis" id="deconstruct" aria-labelledby="deTitle">
+      <div class="analysis-head">
+        <p class="kicker">02 · <span class="zh">笔法解构</span><span class="en">Brushwork analysis</span></p>
+        <h3 id="deTitle"><span class="zh">十维笔法特征 · 实时</span><span class="en">Ten brushwork features · live</span></h3>
+        <p class="live" id="liveStatus" role="status" aria-live="polite"></p>
+      </div>
+      <div class="feat-grid" id="featGrid"></div>
+      <p class="hint" id="featUnitNote"><span class="zh">速度均值按 <strong>1000 px 参考画布</strong>折算（与八书体档案同量纲，悬停看屏幕实测）；提按比有压感用笔压，无压感以速度为代理。</span>
+        <span class="en">Mean speed is normalised to a <strong>1000 px reference canvas</strong> (hover for the raw value); press ratio uses pen pressure when reported, otherwise travel speed.</span></p>
+
+      <div id="chartsHost" class="charts">
+        <figure class="chart">
+          <figcaption><span class="zh">速度曲线（朱色竖带为驻笔区间，红点为转折点）</span><span class="en">Velocity curve (red bands = dwell, dots = turns)</span></figcaption>
+          <svg id="speedChart" class="chart-svg" role="img" aria-label="速度曲线折线图，横轴为时间，纵轴为速度；朱色阴影表示驻笔区间。"></svg>
+        </figure>
+        <figure class="chart">
+          <figcaption><span class="zh">提按剖面（横轴沿笔道长度；实线＝画布上真实笔宽，含起笔 0.55× / 收笔 0.28× 锋形；虚线＝骨架层包络，提按比取自虚线；朱色带为起收锋不计入提按比的区间）</span><span class="en">Press profile (x = distance along the stroke; solid = the stroke’s real width on canvas, including the 0.55× entry and 0.28× exit taper; dashed = the skeleton envelope the press ratio is measured on; red bands = taper zones excluded from the press ratio)</span></figcaption>
+          <svg id="pressChart" class="chart-svg short" role="img" aria-label="提按剖面图：横轴为沿笔道的长度。实线是含起笔与收笔锋形的真实笔宽包络，虚线是不含锋形的骨架层包络；提按比取自虚线的最大值除最小值，图上同时标出含锋形的总宽比。"></svg>
+        </figure>
+        <figure class="chart">
+          <figcaption><span class="zh">曲率与转折（红线为有符号曲率）</span><span class="en">Curvature and turns (signed curvature)</span></figcaption>
+          <svg id="curveChart" class="chart-svg short" role="img" aria-label="曲率曲线，红线上凸表示向左转，下凹表示向右转。"></svg>
+          <label class="scrub-row" for="scrub"><span class="zh">时间轴回放</span><span class="en">Timeline replay</span>
+            <input type="range" id="scrub" min="0" max="100" value="0" step="1">
+          </label>
+        </figure>
+        <div class="turn-note">
+          <p class="chart-cap"><span class="zh">转折角标注</span><span class="en">Turn angles</span></p>
+          <div id="turnNote"></div>
+        </div>
+        <p class="hover-read" id="hoverRead" aria-live="polite"></p>
+        <p class="hint"><span class="zh">把鼠标移到速度曲线上，画布上会高亮对应的笔迹位置；拖动“时间轴回放”可重看书写过程。</span>
+          <span class="en">Hover the velocity curve to highlight the matching point on the canvas; drag the timeline to replay the stroke.</span></p>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- =================== 3 · 名家比对 =================== -->
+<section id="match" class="sec alt" aria-labelledby="matchTitle">
+  <header class="sec-head">
+    <p class="kicker">03 · <span class="zh">名家比对</span><span class="en">Style matching</span></p>
+    <h2 id="matchTitle"><span class="zh">你的笔法更接近谁</span><span class="en">Whose brushwork is yours closer to</span></h2>
+    <p class="lede"><span class="zh">用十维特征与八件书体档案（欧 / 颜 / 柳 / 赵 / 王羲之行书 + 隶书三家：曹全碑 / 张迁碑 / 石门颂）做<strong>加权余弦相似度</strong>计算，给出排序与解释。这是教学示意性的特征相似度，<strong>不构成书家、年代或真伪鉴定</strong>——所以我们只说“更接近”。</span>
+      <span class="en">Ten features are compared with five style profiles (Ou, Yan, Liu, Zhao, Wang’s running script) by <strong>weighted cosine similarity</strong>, giving a ranking and an explanation. This is pedagogical feature similarity, <strong>not an attribution or a dating</strong> — hence “closer to”, never “is”.</span></p>
+  </header>
+  <div class="match-grid">
+    <figure class="radar-box">
+      <svg id="radar" class="radar" role="img" aria-label="十维特征雷达图：朱色实线为你的笔迹，黑色虚线为命中的书体档案。"></svg>
+      <figcaption><span class="zh">朱色：你的笔迹　黑色虚线：最接近的书体档案</span><span class="en">Vermilion: your stroke　Dashed: the closest profile</span></figcaption>
+    </figure>
+    <div class="match-side">
+      <button id="matchBtn" class="btn-primary" type="button"><span class="zh">开始比对</span><span class="en">Compare</span></button>
+      <p class="match-form" id="matchForm" role="status" aria-live="polite"></p>
+      <ol class="rank" id="rankList" aria-label="书体相似度排序"></ol>
+      <p class="why" id="matchWhy" aria-live="polite"></p>
+      <p class="disclaim"><span class="zh">方法：十维特征按各维量纲归一化（角度类按笔迹轴向折叠）后加权余弦；权重公开于 data_steles.js 的 FEATURE_META。措辞统一为“更接近”。</span>
+        <span class="en">Method: features normalised per dimension (angles folded to stroke axis), then weighted cosine; weights are public in FEATURE_META of data_steles.js. The wording is always “closer to”.</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- =================== 4 · 笔法重演 =================== -->
+<section id="replay" class="sec" aria-labelledby="replayTitle">
+  <header class="sec-head">
+    <p class="kicker">04 · <span class="zh">笔法重演</span><span class="en">Brushwork replay</span></p>
+    <h2 id="replayTitle"><span class="zh">把书体的笔法重新走一遍</span><span class="en">Walk the brushwork of a style again</span></h2>
+    <p class="lede"><span class="zh">这不是字帖贴图，也不是预录动画：从永字八法的<strong>归一化骨架点列</strong>出发，按所选书体的结构参数（粗细、提按幅度、转折柔度、收笔外扩、中宫、欹侧、波势）重建轨迹与粗细，再由速度包络反解每一帧的<strong>时刻</strong>，得到带时间戳的重演序列。可重演的书体就是书体档案里的<strong>全部 8 种</strong>（欧 / 颜 / 柳 / 赵 / 王羲之行书 + 隶书三家：曹全碑 / 张迁碑 / 石门颂）；碑帖廊的 8 件碑帖因此<strong>全部在重演之列</strong>。</span>
+      <span class="en">Not a bitmap, not a recorded animation: starting from the normalised skeleton of the Eight Principles of 永, the trajectory and weight are rebuilt from the style’s structural parameters (weight, press range, turn softness, exit flare, centre, slant, wave), then a velocity envelope is inverted into a timestamp for every frame. Replayable styles are exactly the <strong>five</strong> in the archive (Ou, Yan, Liu, Zhao, Wang’s running script); the three clerical steles in the gallery have no profile yet and are not replayable.</span></p>
+  </header>
+  <div class="replay-grid">
+    <div class="replay-stage">
+      <div class="replay-canvas-wrap"><canvas id="replayCanvas" aria-label="笔法重演画布：按时间逐步绘制所选书体的所选笔画。"></canvas></div>
+      <p class="replay-hud" id="replayHud" aria-hidden="true"></p>
+      <div class="replay-tools">
+        <label class="field" for="replayStyle"><span class="zh">书体</span><span class="en">Style</span><select id="replayStyle"></select></label>
+        <label class="field" for="replayStroke"><span class="zh">笔画</span><span class="en">Stroke</span><select id="replayStroke"></select></label>
+        <button id="replayPlay" class="btn-primary small" type="button"><span class="zh">播放</span><span class="en">Play</span></button>
+        <div class="field-inline" role="group" aria-label="播放速度">
+          <button class="chip" type="button" data-replay-speed="0.5">0.5×</button>
+          <button class="chip on" type="button" data-replay-speed="1">1×</button>
+          <button class="chip" type="button" data-replay-speed="2">2×</button>
+        </div>
+        <label class="chk"><input type="checkbox" id="replaySkeleton" checked><span class="zh">对照骨架线</span><span class="en">Show skeleton</span></label>
+      </div>
+    </div>
+    <aside class="replay-info">
+      <div id="strokeGloss" class="gloss"></div>
+      <div id="replayInfo" class="facts"></div>
+    </aside>
+  </div>
+</section>
+
+<!-- =================== 5 · 听笔法 =================== -->
+<section id="listen" class="sec alt" aria-labelledby="listenTitle">
+  <header class="sec-head">
+    <p class="kicker">05 · <span class="zh">听笔法</span><span class="en">Hear the brushwork</span></p>
+    <h2 id="listenTitle"><span class="zh">不认得汉字，也能听出书体的性格——现在可以在作品里直接 A/B 对比听出来</span><span class="en">Without reading a single character you can hear a style’s temperament — and now you can A/B it directly inside the work</span></h2>
+    <p class="lede"><span class="zh">“不认得汉字，也能听出书体的性格”这句话，现在<strong>可以在作品里直接 A/B 对比听出来</strong>：下面把两档书体档案并排发声，先听 A、再听 B。全部声音由 <strong>Web Audio 实时合成</strong>，不加载任何音频文件：速度→音高（五声音阶离散化），提按→音量包络，转折→谐波亮度。同一笔在同一音色下<strong>必然产生同一串音</strong>——种子来自量化后的十维特征，不含任何随机状态。</span>
+      <span class="en">“You can hear a style without reading a character” is now <strong>verifiable inside the work as a direct A/B</strong>: two profiles sound side by side — listen to A, then to B. All sound is <strong>synthesised live by Web Audio</strong>; not one audio file is loaded. Velocity → pitch (a pentatonic quantisation), press → amplitude envelope, turns → harmonic brightness. The same stroke in the same timbre <strong>always yields the same notes</strong>, seeded by the quantised ten features with no hidden randomness.</span></p>
+  </header>
+  <div class="listen-grid">
+    <div class="listen-tools">
+      <div class="listen-actions">
+        <button id="sonifyBtn" class="btn-primary" type="button"><span class="zh">听这一笔</span><span class="en">Hear this stroke</span></button>
+        <button id="stopAudio" class="btn-line" type="button"><span class="zh">停止声音</span><span class="en">Stop</span></button>
+      </div>
+      <div class="field-inline" role="group" aria-label="音色">
+        <button class="chip on" type="button" data-timbre="guqin" data-zh="古琴拨弦" data-en="Guqin pluck"><span class="zh">古琴拨弦</span><span class="en">Guqin pluck</span></button>
+        <button class="chip" type="button" data-timbre="muyu" data-zh="木鱼点" data-en="Wooden fish"><span class="zh">木鱼点</span><span class="en">Wooden fish</span></button>
+        <button class="chip" type="button" data-timbre="strings" data-zh="弦乐持续" data-en="Sustained strings"><span class="zh">弦乐持续</span><span class="en">Sustained strings</span></button>
+      </div>
+      <label class="field" for="volume"><span class="zh">音量</span><span class="en">Volume</span>
+        <input type="range" id="volume" min="0" max="1" step="0.01" value="0.7">
+        <output id="volumeOut" for="volume">70%</output>
+      </label>
+      <p class="hint"><span class="zh">建议戴耳机。若浏览器要求交互后才允许发声，点击“听这一笔”即可（首次点击会激活音频上下文）。</span>
+        <span class="en">Headphones recommended. Browsers require a gesture before audio starts; the first click activates the audio context.</span></p>
+    </div>
+    <div class="listen-view">
+      <figure class="chart">
+        <figcaption><span class="zh">实时频谱（AnalyserNode）</span><span class="en">Live spectrum (AnalyserNode)</span></figcaption>
+        <canvas id="spectrum" role="img" aria-label="实时频谱柱状图。"></canvas>
+      </figure>
+      <div class="note-log" id="noteLog" aria-live="polite"></div>
+    </div>
+  </div>
+  <div class="ab-panel" aria-labelledby="abTitle">
+    <header class="ab-head">
+      <h3 id="abTitle"><span class="zh">八体 A/B 对照试听</span><span class="en">Eight-style A/B audition</span></h3>
+      <p class="ab-lead"><span class="zh">同一根线条，两种性格——<strong>先听 A，再听 B</strong>。</span>
+        <span class="en">One line, two temperaments — <strong>listen to A, then to B</strong>.</span></p>
+      <p class="hint"><span class="zh">A 与 B 都不是录音：两者由<strong>同一个确定性 <code>sonify()</code> 管线</strong>、按各自书体档案的十维特征实时合成，音色相同、都压到 4 秒。所以听到的差别<strong>只来自两份档案</strong>——速度→音高走向、提按→音量包络、转折→谐波亮度。预置三对之外，也可以在上面两个下拉里任选 8 档中的任意两档。</span>
+        <span class="en">Neither A nor B is a recording: both are synthesised live by the <strong>same deterministic <code>sonify()</code> pipeline</strong> from the ten features of each profile — same timbre, both fitted to four seconds. Every difference you hear therefore comes <strong>only from the two profiles</strong>: speed→pitch contour, press→loudness envelope, turns→harmonic brightness. Beyond the three presets, any two of the eight profiles can be paired in the selects above.</span></p>
+    </header>
+    <div class="ab-pairs" role="group" aria-label="对照预置 / preset pairs">
+      <span class="ab-pairs-label"><span class="zh">预置对照</span><span class="en">Presets</span></span>
+      <button class="chip on" type="button" data-ab-pair="0" aria-pressed="true"><span class="zh">欧 / 颜</span><span class="en">Ou / Yan</span></button>
+      <button class="chip" type="button" data-ab-pair="1" aria-pressed="false"><span class="zh">颜 / 柳</span><span class="en">Yan / Liu</span></button>
+      <button class="chip" type="button" data-ab-pair="2" aria-pressed="false"><span class="zh">曹全 / 张迁</span><span class="en">Cao Quan / Zhang Qian</span></button>
+    </div>
+    <div class="ab-grid">
+      <div class="ab-side">
+        <label class="ab-pick" for="abSelectA">
+          <span class="ab-pick-label"><span class="zh">A 侧书体</span><span class="en">Side A</span></span>
+          <select id="abSelectA"></select>
+        </label>
+        <button id="abPlayA" class="btn-line ab-play" type="button">
+          <span class="ab-play-key" aria-hidden="true">A</span>
+          <span class="ab-play-name" id="abPlayALabel">—</span>
+          <span class="ab-play-cta"><span class="zh">先听 A</span><span class="en">Play A</span></span>
+        </button>
+        <p class="ab-meta" id="abMetaA"></p>
+      </div>
+      <div class="ab-side">
+        <label class="ab-pick" for="abSelectB">
+          <span class="ab-pick-label"><span class="zh">B 侧书体</span><span class="en">Side B</span></span>
+          <select id="abSelectB"></select>
+        </label>
+        <button id="abPlayB" class="btn-line ab-play" type="button">
+          <span class="ab-play-key" aria-hidden="true">B</span>
+          <span class="ab-play-name" id="abPlayBLabel">—</span>
+          <span class="ab-play-cta"><span class="zh">再听 B</span><span class="en">Play B</span></span>
+        </button>
+        <p class="ab-meta" id="abMetaB"></p>
+      </div>
+    </div>
+    <p class="ab-verdict" id="abVerdict"></p>
+    <div class="ab-actions">
+      <button id="abPlayBoth" class="btn-primary small" type="button"><span class="zh">A → B 连播（约 8 秒）</span><span class="en">Play A, then B (≈8 s)</span></button>
+      <p class="hint"><span class="zh">连播用 A 的确定时长作定时器，输出仍然确定；点“停止声音”可随时中断。</span>
+        <span class="en">The A→B chain is timed by A’s deterministic duration; “Stop” interrupts at any time.</span></p>
+    </div>
+    <p class="ab-readout" id="abReadout" aria-live="polite"></p>
+  </div>
+</section>
+
+<!-- =================== 6 · 碑帖廊 =================== -->
+<section id="gallery" class="sec" aria-labelledby="galleryTitle">
+  <header class="sec-head">
+    <p class="kicker">06 · <span class="zh">碑帖廊</span><span class="en">Stele gallery</span></p>
+    <h2 id="galleryTitle"><span class="zh">八件公版碑帖，同一“永”字的八种笔意</span><span class="en">Eight public-domain steles, eight hands on one character</span></h2>
+    <p class="lede"><span class="zh">八件均为公有领域作品（东汉至元代）。卡片中的字形不是拓本，而是团队依各碑笔意自绘的<strong>矢量骨架</strong>——同一“永”字，按八件碑帖的结构参数（粗细、方折、波磔、中宫、欹侧）重新生成，因此<strong>8 碑的结构可以直接横向比较</strong>。可比对范围同样说清楚：<strong>8 件全部有对应书体档案</strong>（欧 / 颜 / 柳 / 赵 / 王羲之行书，加隶书三家<strong>曹全碑 · 秀逸 / 张迁碑 · 方整 / 石门颂 · 野逸</strong>），因此<strong>8 档档案也全部可参与名家比对、笔法重演与 A/B 试听</strong>，卡片上逐张标注“可比对 · 可重演”，没有一件是“仅静态展示”。点击图形切换“骨架线 / 字形轮廓”。</span>
+      <span class="en">All eight are in the public domain (Eastern Han to Yuan). The glyphs are not rubbings but <strong>vector skeletons drawn by the team</strong> in each stele’s manner — the same 永 regenerated from eight sets of structural parameters, so the <strong>structure of all eight can be compared side by side</strong>. Scope, stated plainly: <strong>all eight have a matching style profile</strong> (Ou, Yan, Liu, Zhao, Wang’s running script, plus the three clerical hands <strong>Cao Quan · refined, Zhang Qian · square, Shimen · untrammelled</strong>), so <strong>all eight profiles take part in style matching, brushwork replay and the A/B audition</strong>; every card carries a “comparable · replayable” badge and none is “static display”. Click a figure to switch bone lines / outlines.</span></p>
+    <div class="gallery-bar">
+      <button id="galleryToggle" class="chip" type="button"><span class="zh">骨架线 / 字形轮廓</span><span class="en">Bone / Outline</span></button>
+      <p class="hint"><span class="zh">书体档案：<b id="totalStyles">8</b> 种（楷 / 行五档 + 隶书三家）· 收录碑帖：<b id="totalSteles2">8</b> 件 · 其中<b>可比对 / 可重演 8 件</b>（含隶书三家）</span>
+        <span class="en">Style profiles: <b>8</b> (five regular / running, three clerical) · steles: <b>8</b> · <b>all 8 comparable / replayable</b></span></p>
+    </div>
+  </header>
+  <div class="gallery-grid" id="galleryGrid"></div>
+  <div class="gallery-detail" id="galleryDetail"></div>
+</section>
+
+<!-- =================== 7 · 术语库 =================== -->
+<section id="terms" class="sec alt" aria-labelledby="termsTitle">
+  <header class="sec-head">
+    <p class="kicker">07 · <span class="zh">术语库</span><span class="en">Terminology</span></p>
+    <h2 id="termsTitle"><span class="zh">把这些词写准，笔法才谈得上</span><span class="en">Name the terms precisely, and brushwork becomes discussable</span></h2>
+    <p class="lede"><span class="zh">共 <b id="totalTerms2">153</b> 条中英双语书法术语，分为九个门类，逐条给出释义与书论出处。检索支持中文、英文与拼音。英文术语为团队定译，不取自商业词典。</span>
+      <span class="en">A bilingual glossary of <b>153</b> terms in nine categories, each with a definition and its source in the classical literature. Search works in Chinese, English or pinyin. English renderings are the team’s own, not taken from any commercial dictionary.</span></p>
+  </header>
+  <div class="terms-wrap">
+    <div class="terms-search">
+      <label class="sr-only" for="termSearch"><span class="zh">检索术语</span><span class="en">Search terms</span></label>
+      <input type="search" id="termSearch" placeholder="检索：中锋 / 飞白 / 捺 / centered / cursive …">
+      <button id="langTermToggle" class="chip" type="button"><span class="zh">中 / EN</span><span class="en">中 / EN</span></button>
+    </div>
+    <div class="cats" id="termCats"></div>
+    <p class="term-count" id="termCount" aria-live="polite"></p>
+    <div class="term-list" id="termList"></div>
+  </div>
+</section>
+
+<!-- =================== 8 · 无障碍与教学 =================== -->
+<section id="access" class="sec" aria-labelledby="accessTitle">
+  <header class="sec-head">
+    <p class="kicker">08 · <span class="zh">无障碍与教学</span><span class="en">Accessibility &amp; teaching</span></p>
+    <h2 id="accessTitle"><span class="zh">笔法体检报告，与不用鼠标的写法</span><span class="en">A brushwork report, and writing without a mouse</span></h2>
+  </header>
+  <div class="access-grid">
+    <div class="access-main">
+      <h3><span class="zh">笔法体检报告（Markdown 导出）</span><span class="en">Brushwork report (Markdown export)</span></h3>
+      <p><span class="zh">导出内容包含：十维特征值、Top-3 书体匹配与解释、按特征生成的练习建议、以及全部方法参数（重采样步长、去抖半窗、驻笔阈值、转折阈值、匹配权重）。可以交给老师，也可以三次课前后对照。</span>
+        <span class="en">The export contains: the ten feature values, the top-3 matches with an explanation, suggestions generated from your features, and every method parameter (resampling step, smoothing window, dwell threshold, turn threshold, matching weights). Hand it to a teacher, or compare it across three lessons.</span></p>
+      <div class="access-actions">
+        <button id="exportBtn" class="btn-primary" type="button"><span class="zh">导出笔法体检报告</span><span class="en">Export report</span></button>
+      </div>
+      <pre class="report-preview" id="reportPreview" tabindex="0" aria-label="报告纯文本预览"></pre>
+    </div>
+    <aside class="access-side">
+      <h3><span class="zh">无障碍声明</span><span class="en">Accessibility statement</span></h3>
+      <ul class="a11y-list">
+        <li><span class="zh"><b>键盘可达</b>：全部按钮可 Tab 聚焦，有可见焦点环；书写台可开启“键盘书写”，方向键移动笔尖、空格落笔、Esc 取消。</span>
+          <span class="en"><b>Keyboard reachable</b>: every control is tabbable with a visible focus ring; the pad has a keyboard mode where arrows move the tip, space lifts it, Esc cancels.</span></li>
+        <li><span class="zh"><b>听觉替代</b>：笔法可被合成成声音，“听笔法”为视障用户提供了一条不依赖视觉的感知通道；同一模块的<strong>八体 A/B 对照试听</strong>让“两种书体性格不同”可以被直接听、反复听（同输入必同输出）。</span>
+          <span class="en"><b>Auditory alternative</b>: brushwork can be synthesised into sound, giving non-visual users a channel to perceive it; the same module’s <strong>eight-style A/B audition</strong> makes “two styles, two temperaments” directly audible and repeatable (same input, same output).</span></li>
+          <span class="en"><b>Auditory alternative</b>: brushwork can be synthesised into sound, giving non-visual users a channel to perceive it.</span></li>
+        <li><span class="zh"><b>文本替代</b>：画布与三张图表均有 aria-label 与等价文字说明；每次分析结果通过 aria-live 播报。</span>
+          <span class="en"><b>Text alternatives</b>: the canvas and all three charts carry aria-labels and equivalent prose; each analysis is announced through aria-live.</span></li>
+        <li><span class="zh"><b>动效控制</b>：尊重 prefers-reduced-motion；顶栏“减弱动效”可随时关闭入场与书写动画。</span>
+          <span class="en"><b>Motion control</b>: prefers-reduced-motion is honoured; the top-bar toggle disables entrance and writing animations at any time.</span></li>
+        <li><span class="zh"><b>现场演示模式</b>：按 <kbd>P</kbd>（或右下角“演示”按钮）进入“一模块一屏”：<kbd>↑</kbd><kbd>↓</kbd> 在模块内翻页，<kbd>←</kbd><kbd>→</kbd>（或 <kbd>Tab</kbd> / <kbd>Shift+Tab</kbd>）跳到上 / 下一模块首屏，<kbd>Home</kbd><kbd>End</kbd> 到首 / 末模块，再按 <kbd>P</kbd> 或 <kbd>Esc</kbd> 退出并还原原来的滚动位置。顶部指示条只占 40 px 一条，播报走 aria-live（如“笔法解构，第 2 页，共 2 页”）；开启“减弱动效”或系统 prefers-reduced-motion 时不使用平滑滚动。演示模式只加一层定位能力，不改动任何原有交互与无障碍属性。</span>
+          <span class="en"><b>Presentation mode</b>: press <kbd>P</kbd> (or the “Present” button at bottom right) for one-module-per-screen — <kbd>↑</kbd><kbd>↓</kbd> page within a module, <kbd>←</kbd><kbd>→</kbd> (or <kbd>Tab</kbd> / <kbd>Shift+Tab</kbd>) jump to the previous / next module’s first screen, <kbd>Home</kbd><kbd>End</kbd> for first / last, and <kbd>P</kbd> or <kbd>Esc</kbd> exits and restores the previous scroll position. The indicator bar is a single 40 px strip and announces through aria-live (“Brushwork analysis, page 2 of 2”); smooth scrolling is skipped when “reduce motion” or prefers-reduced-motion is on. The mode only adds viewport positioning — no existing interaction or accessibility attribute changes.</span></li>
+        <li><span class="zh"><b>对比度</b>：正文与背景对比度 ≥ 4.5:1；信息不只靠颜色传达（转折点同时给出角度数值）。</span>
+          <span class="en"><b>Contrast</b>: body text meets 4.5:1; information never relies on colour alone (turns also carry numeric angles).</span></li>
+        <li><span class="zh"><b>双语</b>：全站中英切换，便于国际评审与国际中文教学。</span>
+          <span class="en"><b>Bilingual</b>: a full Chinese/English switch for international review and teaching.</span></li>
+      </ul>
+    </aside>
+  </div>
+</section>
+
+<!-- =================== 9 · 团队与披露 =================== -->
+<section id="team" class="sec alt" aria-labelledby="teamTitle">
+  <header class="sec-head">
+    <p class="kicker">09 · <span class="zh">团队 · 制作 · AI 披露</span><span class="en">Team · production · AI disclosure</span></p>
+    <h2 id="teamTitle"><span class="zh">谁做了什么，用了什么</span><span class="en">Who did what, and with what</span></h2>
+  </header>
+  <div class="team-grid">
+    <div>
+      <h3><span class="zh">分工</span><span class="en">Roles</span></h3>
+      <table class="team-table">
+        <thead><tr><th><span class="zh">模块</span><span class="en">Module</span></th><th><span class="zh">负责人</span><span class="en">Owner</span></th><th><span class="zh">产出</span><span class="en">Deliverable</span></th></tr></thead>
+        <tbody>
+          <tr><td><span class="zh">笔法算法（采样 / 特征 / 匹配 / 声音化）</span><span class="en">Algorithms</span></td><td><span class="zh">技术组</span><span class="en">Engineering</span></td><td><span class="zh">app.js 四段纯函数 + 自检脚本</span><span class="en">four pure functions + verify.js</span></td></tr>
+          <tr><td><span class="zh">书写台与墨迹渲染</span><span class="en">Pad &amp; ink rendering</span></td><td><span class="zh">技术组 / 视觉组</span><span class="en">Engineering / Visual</span></td><td><span class="zh">变宽笔道 + 墨量 / 飞白模型、宣纸生成</span><span class="en">variable-width ribbon + ink/flying-white model, paper synthesis</span></td></tr>
+          <tr><td><span class="zh">碑帖骨架与永字八法数据</span><span class="en">Skeletons &amp; Eight Principles data</span></td><td><span class="zh">书法组</span><span class="en">Calligraphy</span></td><td><span class="zh">data_glyphs.js / data_steles.js</span><span class="en">data_glyphs.js / data_steles.js</span></td></tr>
+          <tr><td><span class="zh">术语库与书论校订</span><span class="en">Terminology &amp; source checking</span></td><td><span class="zh">文献组</span><span class="en">Research</span></td><td><span class="zh">data_terms.js（双语释义 + 出处）</span><span class="en">data_terms.js</span></td></tr>
+          <tr><td><span class="zh">双语文本与国际传播</span><span class="en">Bilingual text &amp; dissemination</span></td><td><span class="zh">国际组</span><span class="en">International</span></td><td><span class="zh">全站文案、说明文档英文版</span><span class="en">all copy, English documentation</span></td></tr>
+          <tr><td><span class="zh">测试与无障碍审计</span><span class="en">Testing &amp; a11y audit</span></td><td><span class="zh">测试组</span><span class="en">QA</span></td><td><span class="zh">verify.js / run_checks.py / 无障碍声明</span><span class="en">verify.js / run_checks.py / statement</span></td></tr>
+        </tbody>
+      </table>
+      <p class="hint"><span class="zh">（评审版本中成员姓名与院校信息按报名表填写；此处为角色分工。）</span><span class="en">(Names and institutions follow the entry form; roles are shown here.)</span></p>
+    </div>
+    <aside class="disclose">
+      <h3><span class="zh">原创资产与第三方界定</span><span class="en">Original assets &amp; third parties</span></h3>
+      <ul>
+        <li><span class="zh"><b>四段算法</b>：团队原创，纯 JavaScript 实现，零第三方库。</span><span class="en"><b>Four algorithms</b>: original, plain JavaScript, no third-party libraries.</span></li>
+        <li><span class="zh"><b>碑帖骨架</b>：团队依公版碑帖笔意自绘的归一化点列，不使用字体文件、拓本或扫描件。</span><span class="en"><b>Skeletons</b>: normalised point lists drawn by the team in the manner of public-domain steles; no font files, rubbings or scans.</span></li>
+        <li><span class="zh"><b>术语库</b>：团队依历代书论与公开工具书自行撰写，英文为团队定译。</span><span class="en"><b>Glossary</b>: written by the team from classical treatises and public references; English renderings are the team’s own.</span></li>
+        <li><span class="zh"><b>声音</b>：全部 Web Audio 实时合成，无任何采样音频，无音乐版权风险。</span><span class="en"><b>Sound</b>: entirely synthesised in Web Audio; no sampled audio, no music licensing risk.</span></li>
+        <li><span class="zh"><b>图像</b>：宣纸、墨扩散、石纹等全部由 Canvas/CSS 程序生成，不含外部图片与 CDN 资源。</span><span class="en"><b>Imagery</b>: paper, ink diffusion and stone textures are generated by Canvas/CSS; no external images or CDNs.</span></li>
+      </ul>
+      <h3><span class="zh">AI 使用如实披露</span><span class="en">AI use, disclosed</span></h3>
+      <ul>
+        <li><span class="zh"><b>本作品本体</b>（页面 / 算法 / 数据 / 骨架 / 纹理）：无 AI 生成内容，无 AI 生成图像。</span><span class="en"><b>The work itself</b> (page, algorithms, data, skeletons, textures): no AI-generated content or imagery.</span></li>
+        <li><span class="zh"><b>待补位影像</b>：碑帖廊预留了 8 处氛围图位置（数据里以 <code>pendingAsset</code> 标记），后续若使用 AI 生成影像，将逐条列入披露表；<b>当前缺失也不影响任何功能</b>。</span>
+          <span class="en"><b>Pending imagery</b>: eight atmosphere-image slots are reserved in the stele gallery (marked <code>pendingAsset</code> in the data). Any AI-generated imagery added later will be disclosed item by item; <b>the work runs fully without them today</b>.</span></li>
+        <li><span class="zh"><b>开发辅助</b>：AI 编码助手参与代码起草与文档校对；全部算法均以 <code>test/verify.js</code> 的解析断言复算验证，结论由测试而非模型给出。</span>
+          <span class="en"><b>Development assistance</b>: an AI coding assistant helped draft code and proofread text; every algorithm is re-verified by analytical assertions in <code>test/verify.js</code>, so conclusions come from tests, not from a model.</span></li>
+        <li><span class="zh"><b>评审视频</b>：其中的 AI 生成影像片段另行逐条披露（见说明文档）。</span><span class="en"><b>Review video</b>: any AI-generated footage in it is disclosed separately in the work description.</span></li>
+      </ul>
+      <p class="hint"><span class="zh">声音与匹配结果均为可复算输出：同一笔迹在同一音色下逐字段相同，同一特征向量得到同一排序。</span>
+        <span class="en">Both sound and matching are reproducible: the same stroke in the same timbre is identical field by field, and the same feature vector gives the same ranking.</span></p>
+    </aside>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">
+  <p><span class="zh">墨迹 · Traces of Ink —— 中国书法笔法的时间性数字化与跨模态转译 · 2026 全国大学生数字媒体科技作品及创意竞赛国际专项赛</span>
+    <span class="en">Traces of Ink — Recovering the Time Inside a Brushstroke · 2026 National Student Digital Media Competition, International Track</span></p>
+  <p class="foot-small"><span class="zh">单页离线运行 · 零外部依赖 · 所有字形骨架与纹理均由程序生成</span><span class="en">Single page, offline · zero external dependencies · all glyph skeletons and textures generated in code</span></p>
+  <p class="foot-small"><span class="zh">现场演示：按 <kbd>P</kbd> 进入“一模块一屏”，<kbd>↑</kbd><kbd>↓</kbd> 翻页、<kbd>←</kbd><kbd>→</kbd> 换模块，再按 <kbd>P</kbd> 退出并还原滚动位置。</span><span class="en">Presenting: press <kbd>P</kbd> for one-module-per-screen; <kbd>↑</kbd><kbd>↓</kbd> page, <kbd>←</kbd><kbd>→</kbd> switch module, <kbd>P</kbd> again to exit and restore the scroll position.</span></p>
+</footer>
+
+<!-- =================== 现场演示模式（P 键 · 一模块一屏） =================== -->
+<div class="present-bar" id="presentBar" role="region" aria-label="演示模式指示条 / Presentation indicator" tabindex="-1" hidden>
+  <p class="present-line">
+    <span class="present-mod" id="presentMod">封面</span>
+    <span class="present-sep" aria-hidden="true">·</span>
+    <span class="present-idx" id="presentMIdx">1/10</span>
+    <span class="present-sep" aria-hidden="true">·</span>
+    <span class="present-page" id="presentPage">第 1/1 页</span>
+    <span class="present-sep" aria-hidden="true">·</span>
+    <button id="presentLang" class="present-lang" type="button" aria-label="切换界面语言 / Switch interface language">EN</button>
+    <span class="present-sep" aria-hidden="true">·</span>
+    <span class="present-keys"><span class="zh">↑↓ 翻页 · ←→ 换模块 · P 退出</span><span class="en">↑↓ pages · ←→ modules · P exit</span></span>
+  </p>
+</div>
+<p class="sr-only" id="presentLive" role="status" aria-live="polite"></p>
+<button id="presentBtn" class="present-btn" type="button" aria-pressed="false" title="现场演示模式 / Presentation mode（快捷键 P）">
+  <span class="zh">演示</span><span class="en">Present</span>
+</button>
+
+<noscript>
+  <p style="padding:24px;font-family:serif">本作品需要 JavaScript 才能运行。核心算法与数据均以源码形式随附（app.js / data_*.js），可在 07_技术文档与运行说明 中查看其数学定义与测试方法。<br>
+  This work requires JavaScript. The algorithms and data ship as readable source (app.js / data_*.js); see the technical documentation for their definitions and tests.</p>
+</noscript>
+
+<script src="data_terms.js"></script>
+<script src="data_glyphs.js"></script>
+<script src="data_steles.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

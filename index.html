@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>数字赋能 · 文明互鉴 —— 三件数字人文交互作品</title>
+<meta name="description" content="2026 数媒竞赛国际专项赛 · 三件以中国技术文明为题的离线可运行交互作品：织机与芯片 / 墨迹 / 天时">
+<style>
+*{box-sizing:border-box}
+:root{--bg:#0b0d10;--fg:#e8e6e1;--dim:#8d8a83;--line:#25282d;--gold:#c8a15a;--card:#131619}
+html,body{margin:0;background:var(--bg);color:var(--fg)}
+body{font-family:"PingFang SC","Noto Sans SC","Microsoft YaHei",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding:64px 28px 96px}
+header{border-bottom:1px solid var(--line);padding-bottom:28px;margin-bottom:44px}
+.kicker{font-size:12px;letter-spacing:.28em;color:var(--gold);text-transform:uppercase}
+h1{font-size:clamp(28px,4.2vw,46px);line-height:1.25;margin:18px 0 10px;font-weight:600;letter-spacing:.02em}
+.sub{color:var(--dim);font-size:15px;line-height:1.9;max-width:760px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px}
+a.card{display:block;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--line);
+       border-radius:14px;padding:26px 24px 22px;transition:.25s;position:relative;overflow:hidden}
+a.card:hover{border-color:#3b3f45;transform:translateY(-3px)}
+.card .num{font-size:12px;color:var(--gold);letter-spacing:.2em}
+.card h2{font-size:22px;margin:12px 0 6px;font-weight:600}
+.card .en{font-size:12.5px;color:var(--dim);letter-spacing:.06em;margin-bottom:14px}
+.card p{color:#b9b5ad;font-size:13.5px;line-height:1.85;margin:0}
+.card ul{margin:14px 0 0;padding-left:18px;color:#9d9a93;font-size:12.8px;line-height:1.9}
+.card .go{margin-top:18px;font-size:13px;color:var(--gold);letter-spacing:.04em}
+footer{margin-top:56px;padding-top:24px;border-top:1px solid var(--line);color:#6f6c66;font-size:12.5px;line-height:2}
+footer a{color:#8d8a83}
+@media(max-width:560px){.wrap{padding:40px 18px 64px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="kicker">2026 · INTERNATIONAL TRACK · 数字赋能 · 文明互鉴</div>
+    <h1>把中国技术文明里的「编码」<br>做成可操作、可复算、可听辨的交互作品</h1>
+    <p class="sub">
+      三件作品同一个方法论：不停留在题材的「样子」，而是把支撑它的<b>程序、笔法与历法</b>还原成可运行的结构——
+      代码全部离线可跑，零第三方库；关键结论均由作品内自带的断言脚本当场复算。
+    </p>
+  </header>
+
+  <div class="grid">
+    <a class="card" href="loom/">
+      <div class="num">01</div>
+      <h2>织机与芯片</h2>
+      <div class="en">Loom &amp; Chip — From Pattern-Loom to Binary</div>
+      <p>南京云锦「挑花结本」把纹样编成可卷取、可复制的花本——这是一千年前的「程序」。作品用「五态同构」把同一份编码在花本线、穿孔卡片、打孔纸带、二进制、像素矩阵五种介质上并排联动。</p>
+      <ul><li>挑花结本编译 · 组织循环织造模拟 · 五态互转</li><li>155 条算法断言 + 111 条界面端到端断言</li></ul>
+      <div class="go">进入作品 →</div>
+    </a>
+
+    <a class="card" href="ink/">
+      <div class="num">02</div>
+      <h2>墨迹</h2>
+      <div class="en">Traces of Ink — Recovering the Time Inside a Brushstroke</div>
+      <p>碑帖、字帖看到的都是静止结果，而书论反复讨论的是运动本身。作品把一笔拆成十维笔法特征（速度、提按、转折、驻笔……），并做跨模态转译：速度→音高、提按→力度、转折→音色。</p>
+      <ul><li>十维笔法实时解析 · 五种书体加权余弦匹配</li><li>不认识汉字也能听出书体性格（Web Audio 实时合成）</li></ul>
+      <div class="go">进入作品 →</div>
+    </a>
+
+    <a class="card" href="solar/">
+      <div class="num">03</div>
+      <h2>天时</h2>
+      <div class="en">The Measure of Heaven — 24 Solar Terms as a Computable Calendar</div>
+      <p>二十四节气不是民俗符号，而是以太阳视黄经每 15° 为节点的太阳历法。作品按 VSOP87D 截断级数当场反解每个节气时刻，并与香港天文台 2024–2027 年 96 条官方时刻逐条比对。</p>
+      <ul><li>平均绝对误差 0.259 分钟 · 最大 0.650 分钟（96 条全 ≤1 分钟）</li><li>一个日期游标联动五种文明的太阳节点</li></ul>
+      <div class="go">进入作品 →</div>
+    </a>
+  </div>
+
+  <footer>
+    三件作品均为离线单页交互应用（双击 <code>index.html</code> 亦可运行），中文/英文双语界面，键盘可操作。<br>
+    页面本身不含参赛学校、团队名称、学生与指导教师姓名等信息；第三方数据与 AI 使用情况见各作品《第三方资源说明》《人工智能工具使用情况说明》。
+  </footer>
+</div>
+</body>
+</html>
